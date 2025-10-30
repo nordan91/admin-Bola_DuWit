@@ -1,0 +1,59 @@
+.sidebar-card {
+  background-color: var(--color-white);
+  border: 1px solid var(--color-gray-200);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: box-shadow var(--transition-base);
+  cursor: pointer;
+}
+
+.sidebar-card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.sidebar-card-image {
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+}
+
+.sidebar-card-content {
+  padding: var(--spacing-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.sidebar-card-title {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-gray-900);
+}
+
+.sidebar-card-description {
+  font-size: var(--font-size-xs);
+  color: var(--color-gray-600);
+}
+
+.sidebar-card-price {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-gray-900);
+}
+
+.sidebar-card-rating {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.rating-stars {
+  display: flex;
+  gap: 2px;
+  color: var(--color-warning);
+}
+
+.rating-count {
+  font-size: var(--font-size-xs);
+  color: var(--color-gray-500);
+}

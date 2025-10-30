@@ -1,39 +1,61 @@
-#root {
-  height: 100vh;
-  width: 100vw;
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
-p {
-  text-align: left;
+.app-layout {
+  display: flex;
+  flex: 1;
 }
 
-code {
-  display: inline-block;
-  padding: 0 .3em ;
-  color: light-dark(#000, #fff);
-  background-color: light-dark(#eee, #3a3a3a);
+.main-content {
+  flex: 1;
+  background-color: var(--color-gray-50);
+  overflow-y: auto;
 }
 
-input {
-  margin: 0.4rem;
+.content-section {
+  padding: var(--spacing-xl);
 }
 
-#radios {
-  float: left;
-  padding: 0 20px 20px 20px;
+.section-header {
+  margin-bottom: var(--spacing-lg);
 }
 
-.starter-instructions {
-  color: light-dark(#333, #ccc);
-  text-align: left;
-  max-width: 800px;
+.section-title {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-gray-900);
 }
 
-#map {
-  height: 60%;
-  width: 100%;
+.stores-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: var(--spacing-lg);
+}
+
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: var(--spacing-lg);
+}
+
+@media (max-width: 1024px) {
+  .app-layout {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 768px) {
+  .content-section {
+    padding: var(--spacing-md);
+    padding-bottom: 80px;
+  }
+  
+  .stores-grid,
+  .products-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: var(--spacing-md);
+  }
 }

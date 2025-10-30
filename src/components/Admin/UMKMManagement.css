@@ -1,0 +1,341 @@
+.umkm-management {
+  padding: var(--spacing-xl);
+}
+
+.umkm-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-xl);
+  gap: var(--spacing-md);
+}
+
+.umkm-title {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-gray-900);
+  margin: 0;
+}
+
+.umkm-search {
+  flex: 1;
+  max-width: 400px;
+}
+
+.umkm-search-input {
+  width: 100%;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: 1px solid var(--color-gray-300);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+}
+
+.umkm-search-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.umkm-tabs {
+  display: flex;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-lg);
+  border-bottom: 2px solid var(--color-gray-200);
+}
+
+.umkm-tab {
+  padding: var(--spacing-md) var(--spacing-lg);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-gray-600);
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: all var(--transition-base);
+}
+
+.umkm-tab:hover {
+  color: var(--color-gray-900);
+}
+
+.umkm-tab.active {
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
+}
+
+.umkm-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+  gap: var(--spacing-lg);
+}
+
+.umkm-empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: var(--spacing-2xl);
+  color: var(--color-gray-500);
+}
+
+.umkm-card {
+  background-color: var(--color-white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  transition: transform var(--transition-base), box-shadow var(--transition-base);
+}
+
+.umkm-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.umkm-image {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+.umkm-info {
+  padding: var(--spacing-lg);
+}
+
+.umkm-info-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--spacing-md);
+  gap: var(--spacing-md);
+}
+
+.umkm-name {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-gray-900);
+  margin: 0;
+}
+
+.umkm-details {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
+}
+
+.umkm-detail-item {
+  display: flex;
+  gap: var(--spacing-sm);
+  font-size: var(--font-size-sm);
+}
+
+.umkm-detail-label {
+  color: var(--color-gray-600);
+  font-weight: var(--font-weight-medium);
+  min-width: 80px;
+}
+
+.umkm-detail-value {
+  color: var(--color-gray-900);
+  flex: 1;
+}
+
+.umkm-view-btn {
+  width: 100%;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  border-radius: var(--radius-md);
+  transition: background-color var(--transition-base);
+}
+
+.umkm-view-btn:hover {
+  background-color: var(--color-primary-dark);
+}
+
+.umkm-modal-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.umkm-modal-image {
+  width: 100%;
+  height: 250px;
+  object-fit: cover;
+  border-radius: var(--radius-md);
+}
+
+.umkm-modal-info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.umkm-modal-field label {
+  display: block;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-gray-700);
+  margin-bottom: 4px;
+}
+
+.umkm-modal-field p {
+  font-size: var(--font-size-sm);
+  color: var(--color-gray-900);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.umkm-documents {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+}
+
+.umkm-document-badge {
+  padding: 4px 12px;
+  background-color: var(--color-gray-100);
+  color: var(--color-gray-700);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  border-radius: var(--radius-full);
+}
+
+.modal-btn {
+  padding: var(--spacing-sm) var(--spacing-lg);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-base);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.modal-btn-secondary {
+  background-color: var(--color-gray-100);
+  color: var(--color-gray-700);
+}
+
+.modal-btn-secondary:hover {
+  background-color: var(--color-gray-200);
+}
+
+.modal-btn-success {
+  background-color: var(--color-success);
+  color: var(--color-white);
+}
+
+.modal-btn-success:hover {
+  background-color: var(--color-primary-dark);
+}
+
+.modal-btn-danger {
+  background-color: var(--color-error);
+  color: var(--color-white);
+}
+
+.modal-btn-danger:hover {
+  opacity: 0.9;
+}
+
+@media (max-width: 768px) {
+  .umkm-management {
+    padding: var(--spacing-md);
+  }
+
+  .umkm-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--spacing-sm);
+  }
+
+  .umkm-title {
+    font-size: var(--font-size-xl);
+  }
+
+  .umkm-search {
+    max-width: 100%;
+  }
+
+  .umkm-tabs {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .umkm-tab {
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: var(--font-size-sm);
+    white-space: nowrap;
+  }
+
+  .umkm-list {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-md);
+  }
+
+  .umkm-card {
+    max-width: 100%;
+  }
+
+  .umkm-image {
+    height: 180px;
+  }
+
+  .umkm-info {
+    padding: var(--spacing-md);
+  }
+
+  .umkm-name {
+    font-size: var(--font-size-base);
+  }
+
+  .umkm-detail-label {
+    min-width: 70px;
+  }
+}
+
+@media (max-width: 480px) {
+  .umkm-management {
+    padding: var(--spacing-sm);
+  }
+
+  .umkm-header {
+    margin-bottom: var(--spacing-md);
+  }
+
+  .umkm-title {
+    font-size: var(--font-size-lg);
+  }
+
+  .umkm-image {
+    height: 150px;
+  }
+
+  .umkm-info {
+    padding: var(--spacing-sm);
+  }
+
+  .umkm-info-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-sm);
+  }
+
+  .umkm-details {
+    gap: 6px;
+  }
+
+  .umkm-detail-item {
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .umkm-detail-label {
+    min-width: auto;
+    font-size: var(--font-size-xs);
+  }
+
+  .umkm-detail-value {
+    font-size: var(--font-size-xs);
+  }
+}
