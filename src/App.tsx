@@ -1,64 +1,65 @@
-import { useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { Header } from './components/Header/Header';
-import { Sidebar } from './components/Sidebar/Sidebar';
-import { SearchSection } from './components/SearchSection/SearchSection';
-import { HeroBanner } from './components/HeroBanner/HeroBanner';
-import { ProductCard } from './components/ProductCard/ProductCard';
-import { StoreCard } from './components/StoreCard/StoreCard';
-import { BottomNavigation } from './components/BottomNavigation/BottomNavigation';
 import { LoginPage } from './components/LoginPage/LoginPage';
 import { AdminDashboard } from './components/Admin/AdminDashboard';
-import { mockRootProps } from './mockData';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 import './App.css';
 
 function App() {
-  const { nearbyStores, popularProducts, sidebarPromotions } = mockRootProps;
-
   return (
     <Router>
-      <Routes>
-        <Route path="/" element={
-          <div className="app">
-            <Header onAdminClick={() => {}} />
-            <div className="app-layout">
-              <Sidebar promotions={sidebarPromotions} />
-              <main className="main-content">
-                <SearchSection />
-                <HeroBanner />
-
-                <section className="content-section">
-                  <div className="section-header">
-                    <h2 className="section-title">UMKM Terdekat Anda</h2>
-                  </div>
-                  <div className="stores-grid">
-                    {nearbyStores.map((store) => (
-                      <StoreCard key={store.id} store={store} />
-                    ))}
-                  </div>
-                </section>
-
-                <section className="content-section">
-                  <div className="section-header">
-                    <h2 className="section-title">Produk Popular</h2>
-                  </div>
-                  <div className="products-grid">
-                    {popularProducts.map((product) => (
-                      <ProductCard key={product.id} product={product} />
-                    ))}
-                  </div>
-                </section>
-              </main>
-            </div>
-            <BottomNavigation />
-          </div>
-        } />
-        <Route path="/login" element={<LoginPage onLoginSuccess={() => {}} />} />
-        <Route path="/admin/*" element={<AdminDashboard onLogout={() => {}} />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+      <AuthProvider>
+        <Routes>
+          <Route path="/" element={<Navigate to="/login" replace />} />
+          <Route path="/login" element={<LoginPageWrapper />} />
+          <Route path="/admin/*" element={<ProtectedRoute><AdminDashboardWrapper /></ProtectedRoute>} />
+          <Route path="*" element={<Navigate to="/login" replace />} />
+        </Routes>
+      </AuthProvider>
     </Router>
   );
+}
+
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const { isAuthenticated } = useAuth();
+  const location = useLocation();
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  return <>{children}</>;
+}
+
+function LoginPageWrapper() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { isAuthenticated } = useAuth();
+  
+  // Redirect to admin if already authenticated
+  if (isAuthenticated) {
+    const from = (location.state as any)?.from?.pathname || '/admin';
+    return <Navigate to={from} replace />;
+  }
+  
+  const handleLoginSuccess = () => {
+    const from = (location.state as any)?.from?.pathname || '/admin';
+    navigate(from);
+  };
+
+  return <LoginPage onLoginSuccess={handleLoginSuccess} />;
+}
+
+function AdminDashboardWrapper() {
+  const navigate = useNavigate();
+  const { logout } = useAuth();
+  
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
+
+  return <AdminDashboard onLogout={handleLogout} />;
 }
 
 export default App;

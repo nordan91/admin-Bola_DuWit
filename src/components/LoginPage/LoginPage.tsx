@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { EyeIcon } from '../icons/EyeIcon';
-import { ChevronDownIcon } from '../icons/ChevronDownIcon';
+import { EyeOffIcon } from '../icons/EyeOffIcon';
+import { apiService } from '../../services/api';
+import { useAuth } from '../../contexts/AuthContext';
 import './LoginPage.css';
 
 interface LoginPageProps {
@@ -8,23 +10,32 @@ interface LoginPageProps {
 }
 
 export function LoginPage({ onLoginSuccess }: LoginPageProps) {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('');
+  const [kata_sandi, setkata_sandi] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
-  const language = 'English';
+  const [isLoading, setIsLoading] = useState(false);
+  const { login } = useAuth();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setIsLoading(true);
 
-    // Validate credentials
-    if (username === 'admin' && password === 'admin') {
+    try {
+      const response = await apiService.login({ email, kata_sandi });
+      
+      // Store token and user data, update auth state
+      login(response.data.token, response.data.user);
+      
+      // Call success callback
       if (onLoginSuccess) {
         onLoginSuccess();
       }
-    } else {
-      setError('Username atau password salah. Gunakan username: admin, password: admin');
+    } catch (err: any) {
+      setError(err.message || 'Login gagal. Silakan coba lagi.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -50,25 +61,25 @@ export function LoginPage({ onLoginSuccess }: LoginPageProps) {
             </div>
           )}
           <div className="form-group">
-            <label htmlFor="username" className="form-label">Username</label>
+            <label htmlFor="email" className="form-label">email</label>
             <input
-              id="username"
+              id="email"
               type="text"
               className="form-input"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
             />
           </div>
 
           <div className="form-group">
-            <label htmlFor="password" className="form-label">Password</label>
+            <label htmlFor="password" className="form-label">password</label>
             <div className="password-input-wrapper">
               <input
                 id="password"
                 type={showPassword ? 'text' : 'password'}
                 className="form-input"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                value={kata_sandi}
+                onChange={(e) => setkata_sandi(e.target.value)}
               />
               <button
                 type="button"
@@ -76,24 +87,21 @@ export function LoginPage({ onLoginSuccess }: LoginPageProps) {
                 onClick={() => setShowPassword(!showPassword)}
                 aria-label="Toggle password visibility"
               >
-                <EyeIcon width={20} height={20} color="#9CA3AF" />
+                {showPassword ? (
+                  <EyeOffIcon width={20} height={20} color="#9CA3AF" />
+                ) : (
+                  <EyeIcon width={20} height={20} color="#9CA3AF" />
+                )}
               </button>
             </div>
           </div>
 
-          <button type="submit" className="login-button">
-            Sign in
+          <button type="submit" className="login-button" disabled={isLoading}>
+            {isLoading ? 'Memproses...' : 'Sign in'}
           </button>
         </form>
 
         <div className="login-footer">
-          <div className="language-selector">
-            <span className="language-label">Language:</span>
-            <button className="language-button" type="button">
-              <span className="language-value">{language}</span>
-              <ChevronDownIcon width={16} height={16} color="#5DADE2" />
-            </button>
-          </div>
           <div className="timestamp">2021-08-13 16:20:02</div>
         </div>
 
