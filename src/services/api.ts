@@ -1,3 +1,5 @@
+import type { ApiResponse, ApiPendingUMKMUser, ApiUMKMProfileWithUser, ApiUser, ApiUMKMProfile } from '../types/admin';
+
 const API_BASE_URL = 'https://bola-duwit.my.id/api';
 
 export interface LoginCredentials {
@@ -51,6 +53,26 @@ class ApiService {
     };
   }
 
+  private async handleResponse<T>(response: Response): Promise<T> {
+    if (!response.ok) {
+      if (response.status === 401) {
+        this.logout();
+        throw {
+          message: 'Sesi Anda telah berakhir. Silakan login kembali.',
+          status: 401,
+        } as ApiError;
+      }
+      
+      const errorData = await response.json().catch(() => ({}));
+      throw {
+        message: errorData.message || errorData.error || 'Terjadi kesalahan pada server.',
+        status: response.status,
+      } as ApiError;
+    }
+
+    return await response.json();
+  }
+
   async login(credentials: LoginCredentials): Promise<LoginResponse> {
     try {
       const response = await fetch(`${this.baseUrl}/users/login`, {
@@ -59,12 +81,11 @@ class ApiService {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(credentials),
-        redirect: 'manual', // Prevent automatic redirect following
+        redirect: 'manual',
       });
 
       if (!response.ok) {
         if (response.status === 302) {
-          // Handle redirect as authentication error
           throw {
             message: 'Authentication required. Please check your credentials.',
             status: 401,
@@ -79,7 +100,6 @@ class ApiService {
 
       const data: LoginResponse = await response.json();
       
-      // Check if login was successful
       if (!data.success) {
         throw {
           message: data.message || 'Login gagal.',
@@ -87,10 +107,8 @@ class ApiService {
         } as ApiError;
       }
       
-      // Store token and user data in localStorage
       if (data.data.token) {
         localStorage.setItem('authToken', data.data.token);
-        // Ensure user role is set to admin
         const userData = { ...data.data.user, role: 'admin' };
         localStorage.setItem('userData', JSON.stringify(userData));
       }
@@ -113,22 +131,76 @@ class ApiService {
         headers: this.getAuthHeader(),
       });
 
-      if (!response.ok) {
-        if (response.status === 401) {
-          // Token expired or invalid
-          this.logout();
-          throw {
-            message: 'Sesi Anda telah berakhir. Silakan login kembali.',
-            status: 401,
-          } as ApiError;
-        }
-        throw {
-          message: 'Gagal mengambil data pengguna.',
-          status: response.status,
-        } as ApiError;
-      }
+      return await this.handleResponse(response);
+    } catch (error) {
+      throw error;
+    }
+  }
 
-      return await response.json();
+  // Admin UMKM Management APIs
+  // GET /admin/pending-umkm - Returns users with umkmProfile relation
+  async getPendingUMKM(): Promise<ApiResponse<ApiPendingUMKMUser[]>> {
+    try {
+      const response = await fetch(`${this.baseUrl}/admin/pending-umkm`, {
+        method: 'GET',
+        headers: this.getAuthHeader(),
+      });
+
+      return await this.handleResponse<ApiResponse<ApiPendingUMKMUser[]>>(response);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  // GET /admin/umkm-profiles - Returns profiles with user relation
+  async getAllUMKMProfiles(): Promise<ApiResponse<ApiUMKMProfileWithUser[]>> {
+    try {
+      const response = await fetch(`${this.baseUrl}/admin/umkm-profiles`, {
+        method: 'GET',
+        headers: this.getAuthHeader(),
+      });
+
+      return await this.handleResponse<ApiResponse<ApiUMKMProfileWithUser[]>>(response);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async approveUMKM(userId: string): Promise<ApiResponse<ApiUser>> {
+    try {
+      const response = await fetch(`${this.baseUrl}/admin/approve-umkm/${userId}`, {
+        method: 'POST',
+        headers: this.getAuthHeader(),
+      });
+
+      return await this.handleResponse<ApiResponse<ApiUser>>(response);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async rejectUMKM(userId: string, reason?: string): Promise<ApiResponse<ApiUser>> {
+    try {
+      const response = await fetch(`${this.baseUrl}/admin/reject-umkm/${userId}`, {
+        method: 'POST',
+        headers: this.getAuthHeader(),
+        body: JSON.stringify({ reason }),
+      });
+
+      return await this.handleResponse<ApiResponse<ApiUser>>(response);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async verifyUMKMProfile(profileId: string): Promise<ApiResponse<ApiUMKMProfile>> {
+    try {
+      const response = await fetch(`${this.baseUrl}/admin/verify-profile/${profileId}`, {
+        method: 'POST',
+        headers: this.getAuthHeader(),
+      });
+
+      return await this.handleResponse<ApiResponse<ApiUMKMProfile>>(response);
     } catch (error) {
       throw error;
     }

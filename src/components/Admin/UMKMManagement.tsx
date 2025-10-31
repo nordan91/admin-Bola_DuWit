@@ -1,22 +1,75 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { StatusBadge } from './StatusBadge';
 import { Modal } from './Modal';
 import { CheckIcon } from '../icons/CheckIcon';
 import { XIcon } from '../icons/XIcon';
 import type { UMKMAccount } from '../../types/admin';
+import { apiService } from '../../services/api';
+import { mapApiArrayToUMKMAccounts } from '../../utils/umkmMapper';
 import './UMKMManagement.css';
 
 interface UMKMManagementProps {
-  accounts: UMKMAccount[];
-  onApprove: (id: string) => void;
-  onReject: (id: string) => void;
+  accounts?: UMKMAccount[];
+  onApprove?: (id: string) => void;
+  onReject?: (id: string) => void;
 }
 
-export function UMKMManagement({ accounts, onApprove, onReject }: UMKMManagementProps) {
+export function UMKMManagement({ 
+  accounts: propAccounts, 
+  onApprove: propOnApprove, 
+  onReject: propOnReject 
+}: UMKMManagementProps) {
   const [activeTab, setActiveTab] = useState<'pending' | 'approved' | 'rejected'>('pending');
   const [selectedAccount, setSelectedAccount] = useState<UMKMAccount | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [accounts, setAccounts] = useState<UMKMAccount[]>(propAccounts || []);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isUsingApi] = useState(!propAccounts);
+
+  // Fetch UMKM data from API
+  useEffect(() => {
+    if (!isUsingApi) {
+      // Use prop accounts if provided
+      if (propAccounts) {
+        setAccounts(propAccounts);
+      }
+      return;
+    }
+
+    const fetchUMKMData = async () => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        // Fetch all UMKM profiles data
+        const response = await apiService.getAllUMKMProfiles();
+
+        if (response.success && response.data) {
+          // Map the API response to UMKMAccount format with error handling
+          try {
+            const allAccounts: UMKMAccount[] = mapApiArrayToUMKMAccounts(response.data);
+
+            setAccounts(allAccounts);
+          } catch (mapError) {
+            console.error('Error mapping UMKM accounts:', mapError);
+            setError('Gagal memproses data UMKM');
+          }
+        } else {
+          throw new Error(response.message || 'Gagal memuat data UMKM');
+        }
+      } catch (err) {
+        console.error('Error fetching UMKM data:', err);
+        console.error('Error details:', err);
+        setError(err instanceof Error ? err.message : 'Gagal memuat data UMKM');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUMKMData();
+  }, [isUsingApi, propAccounts]);
 
   const filteredAccounts = accounts.filter(account => {
     const matchesTab = account.status === activeTab;
@@ -31,19 +84,73 @@ export function UMKMManagement({ accounts, onApprove, onReject }: UMKMManagement
     setShowModal(true);
   };
 
-  const handleApprove = () => {
-    if (selectedAccount) {
-      onApprove(selectedAccount.id);
+  const handleApprove = async () => {
+    if (!selectedAccount) return;
+
+    if (propOnApprove) {
+      // Use prop callback if provided (for backward compatibility)
+      propOnApprove(selectedAccount.id);
       setShowModal(false);
       setSelectedAccount(null);
+      return;
+    }
+
+    // Use API
+    setLoading(true);
+    try {
+      await apiService.approveUMKM(selectedAccount.id);
+      
+      // Update local state
+      setAccounts(prevAccounts =>
+        prevAccounts.map(account =>
+          account.id === selectedAccount.id
+            ? { ...account, status: 'approved' as const, reviewedAt: new Date().toISOString() }
+            : account
+        )
+      );
+      
+      setShowModal(false);
+      setSelectedAccount(null);
+    } catch (err) {
+      console.error('Error approving UMKM:', err);
+      setError(err instanceof Error ? err.message : 'Gagal menyetujui UMKM');
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleReject = () => {
-    if (selectedAccount) {
-      onReject(selectedAccount.id);
+  const handleReject = async () => {
+    if (!selectedAccount) return;
+
+    if (propOnReject) {
+      // Use prop callback if provided (for backward compatibility)
+      propOnReject(selectedAccount.id);
       setShowModal(false);
       setSelectedAccount(null);
+      return;
+    }
+
+    // Use API
+    setLoading(true);
+    try {
+      await apiService.rejectUMKM(selectedAccount.id, 'Ditolak oleh admin');
+      
+      // Update local state
+      setAccounts(prevAccounts =>
+        prevAccounts.map(account =>
+          account.id === selectedAccount.id
+            ? { ...account, status: 'rejected' as const, reviewedAt: new Date().toISOString() }
+            : account
+        )
+      );
+      
+      setShowModal(false);
+      setSelectedAccount(null);
+    } catch (err) {
+      console.error('Error rejecting UMKM:', err);
+      setError(err instanceof Error ? err.message : 'Gagal menolak UMKM');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -72,6 +179,29 @@ export function UMKMManagement({ accounts, onApprove, onReject }: UMKMManagement
         </div>
       </div>
 
+      {error && (
+        <div className="umkm-error" style={{ 
+          padding: '1rem', 
+          marginBottom: '1rem', 
+          backgroundColor: '#fee', 
+          color: '#c33',
+          borderRadius: '0.5rem',
+          border: '1px solid #fcc'
+        }}>
+          <strong>Error:</strong> {error}
+        </div>
+      )}
+
+      {loading && (
+        <div className="umkm-loading" style={{ 
+          textAlign: 'center', 
+          padding: '2rem',
+          color: '#666'
+        }}>
+          Memuat data UMKM...
+        </div>
+      )}
+
       <div className="umkm-tabs">
         <button
           className={`umkm-tab ${activeTab === 'pending' ? 'active' : ''}`}
@@ -94,11 +224,11 @@ export function UMKMManagement({ accounts, onApprove, onReject }: UMKMManagement
       </div>
 
       <div className="umkm-list">
-        {filteredAccounts.length === 0 ? (
+        {!loading && filteredAccounts.length === 0 ? (
           <div className="umkm-empty">
             <p>Tidak ada UMKM dengan status {activeTab}</p>
           </div>
-        ) : (
+        ) : !loading && (
           filteredAccounts.map((account) => (
             <div key={account.id} className="umkm-card">
               <img src={account.image} alt={account.name} className="umkm-image" />
@@ -148,13 +278,21 @@ export function UMKMManagement({ accounts, onApprove, onReject }: UMKMManagement
                 <button className="modal-btn modal-btn-secondary" onClick={() => setShowModal(false)}>
                   Batal
                 </button>
-                <button className="modal-btn modal-btn-danger" onClick={handleReject}>
+                <button 
+                  className="modal-btn modal-btn-danger" 
+                  onClick={handleReject}
+                  disabled={loading}
+                >
                   <XIcon width={16} height={16} />
-                  Tolak
+                  {loading ? 'Memproses...' : 'Tolak'}
                 </button>
-                <button className="modal-btn modal-btn-success" onClick={handleApprove}>
+                <button 
+                  className="modal-btn modal-btn-success" 
+                  onClick={handleApprove}
+                  disabled={loading}
+                >
                   <CheckIcon width={16} height={16} />
-                  Setujui
+                  {loading ? 'Memproses...' : 'Setujui'}
                 </button>
               </>
             ) : (

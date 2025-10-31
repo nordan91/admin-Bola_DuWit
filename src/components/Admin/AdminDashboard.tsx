@@ -11,9 +11,10 @@ import './AdminDashboard.css';
 
 interface AdminDashboardProps {
   onLogout: () => void;
+  useMockData?: boolean; // Flag to use mock data or API
 }
 
-export function AdminDashboard({ onLogout }: AdminDashboardProps) {
+export function AdminDashboard({ onLogout, useMockData = false }: AdminDashboardProps) {
   const [umkmAccounts, setUmkmAccounts] = useState<UMKMAccount[]>(mockUMKMAccounts);
 
   const handleApproveUMKM = (id: string) => {
@@ -46,11 +47,15 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
             <Route path="/" element={<Navigate to="/admin/dashboard" replace />} />
             <Route path="/dashboard" element={<DashboardOverview stats={mockDashboardStats} recentActivities={mockRecentActivities} />} />
             <Route path="/umkm" element={
-              <UMKMManagement
-                accounts={umkmAccounts}
-                onApprove={handleApproveUMKM}
-                onReject={handleRejectUMKM}
-              />
+              useMockData ? (
+                <UMKMManagement
+                  accounts={umkmAccounts}
+                  onApprove={handleApproveUMKM}
+                  onReject={handleRejectUMKM}
+                />
+              ) : (
+                <UMKMManagement />
+              )
             } />
             <Route path="/transactions" element={<TransactionManagement transactions={mockTransactions} />} />
           </Routes>
