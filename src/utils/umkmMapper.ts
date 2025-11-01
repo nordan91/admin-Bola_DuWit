@@ -95,6 +95,11 @@ export function mapApiToUMKMAccount(
     }
   };
 
+  // Map account status for suspension
+  const mapAccountStatus = (userStatus: string): 'active' | 'suspended' => {
+    return userStatus === 'suspended' ? 'suspended' : 'active';
+  };
+
   // Generate documents list based on available data
   const generateDocuments = (): string[] => {
     const docs: string[] = [];
@@ -119,6 +124,7 @@ export function mapApiToUMKMAccount(
     description: profile?.deskripsi || 'Belum ada deskripsi',
     documents: generateDocuments(),
     status: mapStatus(user.status),
+    accountStatus: mapAccountStatus(user.status),
     submittedAt: user.created_at || new Date().toISOString(),
     reviewedAt: user.updated_at || undefined,
     image: getPlaceholderImage(category),

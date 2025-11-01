@@ -4,6 +4,7 @@ import { AdminSidebar } from './AdminSidebar';
 import { AdminHeader } from './AdminHeader';
 import { DashboardOverview } from './DashboardOverview';
 import { UMKMManagement } from './UMKMManagement';
+import { UMKMAccountManagement } from './UMKMAccountManagement';
 import { TransactionManagement } from './TransactionManagement';
 import { mockUMKMAccounts, mockTransactions, mockDashboardStats, mockRecentActivities } from '../../mockData/adminData';
 import type { UMKMAccount } from '../../types/admin';
@@ -57,6 +58,7 @@ export function AdminDashboard({ onLogout, useMockData = false }: AdminDashboard
                 <UMKMManagement />
               )
             } />
+            <Route path="/umkm-accounts" element={<UMKMAccountManagement />} />
             <Route path="/transactions" element={<TransactionManagement transactions={mockTransactions} />} />
           </Routes>
         </main>

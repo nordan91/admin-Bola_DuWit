@@ -206,6 +206,32 @@ class ApiService {
     }
   }
 
+  async suspendUMKM(userId: string): Promise<ApiResponse<ApiUser>> {
+    try {
+      const response = await fetch(`${this.baseUrl}/admin/suspend-umkm/${userId}`, {
+        method: 'POST',
+        headers: this.getAuthHeader(),
+      });
+
+      return await this.handleResponse<ApiResponse<ApiUser>>(response);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async activateUMKM(userId: string): Promise<ApiResponse<ApiUser>> {
+    try {
+      const response = await fetch(`${this.baseUrl}/admin/activate-umkm/${userId}`, {
+        method: 'POST',
+        headers: this.getAuthHeader(),
+      });
+
+      return await this.handleResponse<ApiResponse<ApiUser>>(response);
+    } catch (error) {
+      throw error;
+    }
+  }
+
   logout(): void {
     localStorage.removeItem('authToken');
     localStorage.removeItem('userData');

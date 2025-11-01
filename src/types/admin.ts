@@ -11,6 +11,7 @@ export interface UMKMAccount {
   description: string;
   documents: string[];
   status: 'pending' | 'approved' | 'rejected';
+  accountStatus: 'active' | 'suspended';
   submittedAt: string;
   reviewedAt?: string;
   image: string;

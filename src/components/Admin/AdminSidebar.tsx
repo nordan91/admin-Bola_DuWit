@@ -7,6 +7,7 @@ export function AdminSidebar() {
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: '📊', path: '/admin/dashboard' },
     { id: 'umkm', label: 'Kelola UMKM', icon: '🏪', path: '/admin/umkm' },
+    { id: 'umkm-accounts', label: 'Akun UMKM', icon: '👥', path: '/admin/umkm-accounts' },
     { id: 'transactions', label: 'Transaksi', icon: '💳', path: '/admin/transactions' }
   ];
 

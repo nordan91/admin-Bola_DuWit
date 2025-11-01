@@ -1,0 +1,351 @@
+.umkm-account-management {
+  padding: var(--spacing-xl);
+}
+
+.umkm-account-header {
+  margin-bottom: var(--spacing-xl);
+}
+
+.umkm-account-title {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-gray-900);
+  margin: 0;
+}
+
+.umkm-account-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-xl);
+}
+
+.umkm-account-stat-card {
+  background-color: var(--color-white);
+  padding: var(--spacing-lg);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.umkm-account-stat-label {
+  font-size: var(--font-size-sm);
+  color: var(--color-gray-600);
+  margin-bottom: var(--spacing-xs);
+}
+
+.umkm-account-stat-value {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-gray-900);
+}
+
+.umkm-account-filters {
+  display: flex;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+  flex-wrap: wrap;
+}
+
+.umkm-account-search {
+  flex: 1;
+  min-width: 250px;
+}
+
+.umkm-account-search-input {
+  width: 100%;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: 1px solid var(--color-gray-300);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+}
+
+.umkm-account-search-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.umkm-account-status-filters {
+  display: flex;
+  gap: var(--spacing-sm);
+}
+
+.filter-btn {
+  padding: var(--spacing-sm) var(--spacing-md);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-gray-700);
+  background-color: var(--color-white);
+  border: 1px solid var(--color-gray-300);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-base);
+}
+
+.filter-btn:hover {
+  background-color: var(--color-gray-50);
+}
+
+.filter-btn.active {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  border-color: var(--color-primary);
+}
+
+.umkm-account-table-container {
+  background-color: var(--color-white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.umkm-account-mobile-list {
+  display: none;
+}
+
+.umkm-account-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.umkm-account-table thead {
+  background-color: var(--color-gray-50);
+}
+
+.umkm-account-table th {
+  padding: var(--spacing-md);
+  text-align: left;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-gray-700);
+  border-bottom: 1px solid var(--color-gray-200);
+}
+
+.umkm-account-table td {
+  padding: var(--spacing-md);
+  font-size: var(--font-size-sm);
+  color: var(--color-gray-900);
+  border-bottom: 1px solid var(--color-gray-200);
+}
+
+.umkm-account-row:hover {
+  background-color: var(--color-gray-50);
+}
+
+.umkm-account-id {
+  font-weight: var(--font-weight-medium);
+  color: var(--color-primary);
+}
+
+.account-status-badge {
+  display: inline-block;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  border-radius: var(--radius-full);
+  text-transform: uppercase;
+}
+
+.account-status-badge.active {
+  background-color: var(--color-success-light);
+  color: var(--color-success-dark);
+}
+
+.account-status-badge.suspended {
+  background-color: var(--color-danger-light);
+  color: var(--color-danger-dark);
+}
+
+.umkm-account-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-base);
+}
+
+.umkm-account-action-btn.suspend {
+  background-color: var(--color-danger);
+  color: var(--color-white);
+}
+
+.umkm-account-action-btn.suspend:hover {
+  background-color: var(--color-danger-dark);
+}
+
+.umkm-account-action-btn.activate {
+  background-color: var(--color-success);
+  color: var(--color-white);
+}
+
+.umkm-account-action-btn.activate:hover {
+  background-color: var(--color-success-dark);
+}
+
+.umkm-account-action-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.umkm-account-loading,
+.umkm-account-empty {
+  text-align: center;
+  padding: var(--spacing-2xl);
+  color: var(--color-gray-500);
+}
+
+/* Mobile Styles */
+@media (max-width: 1024px) {
+  .umkm-account-table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .umkm-account-table {
+    min-width: 1000px;
+  }
+}
+
+@media (max-width: 768px) {
+  .umkm-account-management {
+    padding: var(--spacing-md);
+  }
+
+  .umkm-account-title {
+    font-size: var(--font-size-xl);
+  }
+
+  .umkm-account-stats {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-sm);
+  }
+
+  .umkm-account-stat-card {
+    padding: var(--spacing-md);
+  }
+
+  .umkm-account-stat-value {
+    font-size: var(--font-size-xl);
+  }
+
+  .umkm-account-filters {
+    flex-direction: column;
+    gap: var(--spacing-sm);
+  }
+
+  .umkm-account-search {
+    min-width: 100%;
+  }
+
+  .umkm-account-status-filters {
+    flex-wrap: wrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .filter-btn {
+    white-space: nowrap;
+  }
+
+  /* Hide table, show mobile cards */
+  .umkm-account-table {
+    display: none;
+  }
+
+  .umkm-account-mobile-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md);
+  }
+
+  .umkm-account-mobile-card {
+    background-color: var(--color-gray-50);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-md);
+    border: 1px solid var(--color-gray-200);
+  }
+
+  .umkm-account-mobile-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-md);
+    padding-bottom: var(--spacing-sm);
+    border-bottom: 1px solid var(--color-gray-200);
+  }
+
+  .umkm-account-status-badges {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    align-items: flex-end;
+  }
+
+  .umkm-account-mobile-body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
+  }
+
+  .umkm-account-mobile-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: var(--font-size-sm);
+  }
+
+  .umkm-account-mobile-label {
+    color: var(--color-gray-600);
+    font-weight: var(--font-weight-medium);
+  }
+
+  .umkm-account-mobile-actions {
+    display: flex;
+    justify-content: flex-end;
+  }
+}
+
+@media (max-width: 480px) {
+  .umkm-account-management {
+    padding: var(--spacing-sm);
+  }
+
+  .umkm-account-title {
+    font-size: var(--font-size-lg);
+  }
+
+  .umkm-account-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .umkm-account-stat-label {
+    font-size: var(--font-size-xs);
+  }
+
+  .umkm-account-stat-value {
+    font-size: var(--font-size-lg);
+  }
+
+  .umkm-account-mobile-list {
+    padding: var(--spacing-sm);
+    gap: var(--spacing-sm);
+  }
+
+  .umkm-account-mobile-card {
+    padding: var(--spacing-sm);
+  }
+
+  .umkm-account-mobile-row {
+    font-size: var(--font-size-xs);
+    gap: var(--spacing-xs);
+  }
+
+  .umkm-account-mobile-label {
+    font-size: var(--font-size-xs);
+  }
+}
