@@ -1,19 +1,20 @@
+:root {
+  /* Warna untuk tombol */
+  --color-danger: #dc3545;
+  --color-danger-dark: #bd2130;
+  --color-danger-light: #f8d7da;
+  --color-success: #28a745;
+  --color-success-dark: #1e7e34;
+  --color-success-light: #d4edda;
+  --color-white: #ffffff;
+}
+
 .umkm-account-management {
   padding: var(--spacing-xl);
 }
 
-.umkm-account-header {
-  margin-bottom: var(--spacing-xl);
-}
-
-.umkm-account-title {
-  font-size: var(--font-size-2xl);
-  font-weight: var(--font-weight-bold);
-  color: var(--color-gray-900);
-  margin: 0;
-}
-
 .umkm-account-stats {
+  margin-top: 5rem;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: var(--spacing-md);

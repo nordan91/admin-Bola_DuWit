@@ -8,6 +8,7 @@ import { UMKMAccountManagement } from './UMKMAccountManagement';
 import { TransactionManagement } from './TransactionManagement';
 import { mockUMKMAccounts, mockTransactions, mockDashboardStats, mockRecentActivities } from '../../mockData/adminData';
 import type { UMKMAccount } from '../../types/admin';
+import { NotFoundPage } from '../../pages/NotFoundPage';
 import './AdminDashboard.css';
 
 interface AdminDashboardProps {
@@ -60,6 +61,7 @@ export function AdminDashboard({ onLogout, useMockData = false }: AdminDashboard
             } />
             <Route path="/umkm-accounts" element={<UMKMAccountManagement />} />
             <Route path="/transactions" element={<TransactionManagement transactions={mockTransactions} />} />
+            <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </main>
       </div>

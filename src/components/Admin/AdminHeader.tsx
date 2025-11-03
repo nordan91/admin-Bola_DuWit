@@ -1,29 +1,22 @@
 import { LogoutIcon } from '../icons/LogoutIcon';
-import { MenuIcon } from '../icons/MenuIcon';
+import { useAuth } from '../../contexts/AuthContext';
 import './AdminHeader.css';
 
 interface AdminHeaderProps {
   onLogout: () => void;
-  onMenuClick?: () => void;
 }
 
-export function AdminHeader({ onLogout, onMenuClick }: AdminHeaderProps) {
+export function AdminHeader({ onLogout }: AdminHeaderProps) {
+  const { user } = useAuth();
   return (
     <header className="admin-header">
       <div className="admin-header-content">
-        <div className="admin-header-left">
-          {onMenuClick && (
-            <button className="admin-menu-btn" onClick={onMenuClick} aria-label="Toggle menu">
-              <MenuIcon width={24} height={24} color="var(--color-gray-700)" />
-            </button>
-          )}
-          <h1 className="admin-header-title">Admin Dashboard</h1>
-        </div>
+        <div className="admin-header-left"></div>
         <div className="admin-header-right">
           <div className="admin-user-info">
             <div className="admin-user-avatar">A</div>
             <div className="admin-user-details">
-              <div className="admin-user-name">Admin</div>
+              <div className="admin-user-name">{user?.nama || 'Admin'}</div>
               <div className="admin-user-role">Administrator</div>
             </div>
           </div>

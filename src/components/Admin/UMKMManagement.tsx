@@ -3,6 +3,8 @@ import { StatusBadge } from './StatusBadge';
 import { Modal } from './Modal';
 import { CheckIcon } from '../icons/CheckIcon';
 import { XIcon } from '../icons/XIcon';
+import { SearchIcon } from '../icons/SearchIcon';
+import { LoadingSpinner } from '../common/LoadingSpinner';
 import type { UMKMAccount } from '../../types/admin';
 import { apiService } from '../../services/api';
 import { mapApiArrayToUMKMAccounts } from '../../utils/umkmMapper';
@@ -167,15 +169,17 @@ export function UMKMManagement({
   return (
     <div className="umkm-management">
       <div className="umkm-header">
-        <h2 className="umkm-title">Kelola UMKM</h2>
         <div className="umkm-search">
-          <input
-            type="text"
-            placeholder="Cari UMKM..."
-            className="umkm-search-input"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
+          <div className="umkm-search-container">
+            <SearchIcon className="umkm-search-icon" />
+            <input
+              type="text"
+              placeholder="Cari UMKM..."
+              className="umkm-search-input"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
         </div>
       </div>
 
@@ -189,16 +193,6 @@ export function UMKMManagement({
           border: '1px solid #fcc'
         }}>
           <strong>Error:</strong> {error}
-        </div>
-      )}
-
-      {loading && (
-        <div className="umkm-loading" style={{ 
-          textAlign: 'center', 
-          padding: '2rem',
-          color: '#666'
-        }}>
-          Memuat data UMKM...
         </div>
       )}
 
@@ -222,6 +216,12 @@ export function UMKMManagement({
           Ditolak ({accounts.filter(a => a.status === 'rejected').length})
         </button>
       </div>
+
+      {loading && (
+        <div className="umkm-loading">
+          <LoadingSpinner />
+        </div>
+      )}
 
       <div className="umkm-list">
         {!loading && filteredAccounts.length === 0 ? (

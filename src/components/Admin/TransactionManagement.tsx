@@ -44,10 +44,6 @@ export function TransactionManagement({ transactions }: TransactionManagementPro
 
   return (
     <div className="transaction-management">
-      <div className="transaction-header">
-        <h2 className="transaction-title">Kelola Transaksi</h2>
-      </div>
-
       <div className="transaction-stats">
         <div className="transaction-stat-card">
           <div className="transaction-stat-label">Total Transaksi</div>

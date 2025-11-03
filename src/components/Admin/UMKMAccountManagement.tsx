@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { StatusBadge } from './StatusBadge';
 import { CheckIcon } from '../icons/CheckIcon';
 import { XIcon } from '../icons/XIcon';
+import { LoadingSpinner } from '../common/LoadingSpinner';
 import type { UMKMAccount } from '../../types/admin';
 import { apiService } from '../../services/api';
 import { mapApiArrayToUMKMAccounts } from '../../utils/umkmMapper';
@@ -139,9 +140,6 @@ export function UMKMAccountManagement({
 
   return (
     <div className="umkm-account-management">
-      <div className="umkm-account-header">
-        <h2 className="umkm-account-title">Kelola Akun UMKM</h2>
-      </div>
 
       <div className="umkm-account-stats">
         <div className="umkm-account-stat-card">
@@ -207,7 +205,8 @@ export function UMKMAccountManagement({
         <div className="umkm-account-mobile-list">
           {loading ? (
             <div className="umkm-account-loading">
-              Memuat data UMKM...
+              <LoadingSpinner />
+              <p>Memuat data UMKM...</p>
             </div>
           ) : filteredAccounts.length === 0 ? (
             <div className="umkm-account-empty">
@@ -217,7 +216,7 @@ export function UMKMAccountManagement({
             filteredAccounts.map((account) => (
               <div key={account.id} className="umkm-account-mobile-card">
                 <div className="umkm-account-mobile-header">
-                  <span className="umkm-account-id">{account.id}</span>
+                  <span>{account.name}</span>
                   <div className="umkm-account-status-badges">
                     <StatusBadge status={account.status} size="sm" />
                     <span className={`account-status-badge ${account.accountStatus}`}>
@@ -226,10 +225,6 @@ export function UMKMAccountManagement({
                   </div>
                 </div>
                 <div className="umkm-account-mobile-body">
-                  <div className="umkm-account-mobile-row">
-                    <span className="umkm-account-mobile-label">Nama UMKM:</span>
-                    <span>{account.name}</span>
-                  </div>
                   <div className="umkm-account-mobile-row">
                     <span className="umkm-account-mobile-label">Pemilik:</span>
                     <span>{account.owner}</span>

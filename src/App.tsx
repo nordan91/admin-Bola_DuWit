@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { LoginPage } from './components/LoginPage/LoginPage';
 import { AdminDashboard } from './components/Admin/AdminDashboard';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { NotFoundPage } from './pages/NotFoundPage';
 import './App.css';
 
 function App() {
@@ -13,7 +14,8 @@ function App() {
           <Route path="/" element={<Navigate to="/login" replace />} />
           <Route path="/login" element={<LoginPageWrapper />} />
           <Route path="/admin/*" element={<ProtectedRoute><AdminDashboardWrapper /></ProtectedRoute>} />
-          <Route path="*" element={<Navigate to="/login" replace />} />
+          <Route path="/404" element={<NotFoundPage />} />
+          <Route path="*" element={<Navigate to="/404" replace />} />
         </Routes>
       </AuthProvider>
     </Router>
