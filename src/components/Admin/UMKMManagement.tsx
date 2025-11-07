@@ -8,29 +8,40 @@ import { LoadingSpinner } from '../common/LoadingSpinner';
 import type { UMKMAccount } from '../../types/admin';
 import { apiService } from '../../services/api';
 import { mapApiArrayToUMKMAccounts } from '../../utils/umkmMapper';
-import './UMKMManagement.css';
+import '../../styles/UMKMManagement.css';
 
+/**
+ * Interface untuk props yang diterima oleh komponen UMKMManagement
+ */
 interface UMKMManagementProps {
-  accounts?: UMKMAccount[];
-  onApprove?: (id: string) => void;
-  onReject?: (id: string) => void;
+  accounts?: UMKMAccount[];  // Daftar akun UMKM opsional (jika tidak disediakan, akan diambil dari API)
+  onApprove?: (id: string) => void;  // Callback untuk menangani persetujuan UMKM (opsional)
+  onReject?: (id: string) => void;   // Callback untuk menangani penolakan UMKM (opsional)
 }
 
+/**
+ * Komponen untuk mengelola pendaftaran UMKM
+ * Menyediakan antarmuka untuk meninjau, menyetujui, dan menolak pendaftaran UMKM
+ */
 export function UMKMManagement({ 
   accounts: propAccounts, 
   onApprove: propOnApprove, 
   onReject: propOnReject 
 }: UMKMManagementProps) {
-  const [activeTab, setActiveTab] = useState<'pending' | 'approved' | 'rejected'>('pending');
-  const [selectedAccount, setSelectedAccount] = useState<UMKMAccount | null>(null);
-  const [showModal, setShowModal] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [accounts, setAccounts] = useState<UMKMAccount[]>(propAccounts || []);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [isUsingApi] = useState(!propAccounts);
+  // State untuk manajemen data dan UI
+  const [activeTab, setActiveTab] = useState<'pending' | 'approved' | 'rejected'>('pending');  // Tab aktif
+  const [selectedAccount, setSelectedAccount] = useState<UMKMAccount | null>(null);  // Akun UMKM yang dipilih
+  const [showModal, setShowModal] = useState(false);  // Status tampilan modal detail
+  const [searchQuery, setSearchQuery] = useState('');  // Kata kunci pencarian
+  const [accounts, setAccounts] = useState<UMKMAccount[]>(propAccounts || []);  // Daftar akun UMKM
+  const [loading, setLoading] = useState(false);  // Status loading
+  const [error, setError] = useState<string | null>(null);  // Pesan error
+  const [isUsingApi] = useState(!propAccounts);  // Flag untuk menentukan apakah menggunakan data dari API atau props
 
-  // Fetch UMKM data from API
+  /**
+   * Effect untuk mengambil data UMKM dari API jika tidak disediakan melalui props
+   * Hanya berjalan jika isUsingApi bernilai true
+   */
   useEffect(() => {
     if (!isUsingApi) {
       // Use prop accounts if provided
@@ -73,6 +84,10 @@ export function UMKMManagement({
     fetchUMKMData();
   }, [isUsingApi, propAccounts]);
 
+  /**
+   * Memfilter daftar akun UMKM berdasarkan tab aktif dan kata kunci pencarian
+   * @returns Daftar akun UMKM yang sesuai dengan kriteria pencarian dan filter
+   */
   const filteredAccounts = accounts.filter(account => {
     const matchesTab = account.status === activeTab;
     const matchesSearch = account.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -81,11 +96,19 @@ export function UMKMManagement({
     return matchesTab && matchesSearch;
   });
 
+  /**
+   * Menangani klik tombol lihat detail
+   * @param account Akun UMKM yang akan dilihat detailnya
+   */
   const handleViewDetails = (account: UMKMAccount) => {
     setSelectedAccount(account);
     setShowModal(true);
   };
 
+  /**
+   * Menangani persetujuan akun UMKM
+   * Menggunakan prop callback jika disediakan, atau memanggil API langsung
+   */
   const handleApprove = async () => {
     if (!selectedAccount) return;
 
@@ -121,6 +144,10 @@ export function UMKMManagement({
     }
   };
 
+  /**
+   * Menangani penolakan akun UMKM
+   * Menggunakan prop callback jika disediakan, atau memanggil API langsung
+   */
   const handleReject = async () => {
     if (!selectedAccount) return;
 
@@ -156,6 +183,11 @@ export function UMKMManagement({
     }
   };
 
+  /**
+   * Memformat tanggal menjadi format yang lebih mudah dibaca
+   * @param dateString String tanggal yang akan diformat
+   * @returns String tanggal yang sudah diformat (contoh: "1 Januari 2023, 12:00")
+   */
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('id-ID', {
       year: 'numeric',
@@ -167,9 +199,10 @@ export function UMKMManagement({
   };
 
   return (
-    <div className="umkm-management">
+    <div className="umkm-management" role="main" aria-label="Manajemen Pendaftaran UMKM">
+      {/* Header dengan fitur pencarian */}
       <div className="umkm-header">
-        <div className="umkm-search">
+        <div className="umkm-search" role="search">
           <div className="umkm-search-container">
             <SearchIcon className="umkm-search-icon" />
             <input
@@ -196,7 +229,8 @@ export function UMKMManagement({
         </div>
       )}
 
-      <div className="umkm-tabs">
+      {/* Tab untuk filter status */}
+      <div className="umkm-tabs" role="tablist" aria-label="Filter Status UMKM">
         <button
           className={`umkm-tab ${activeTab === 'pending' ? 'active' : ''}`}
           onClick={() => setActiveTab('pending')}
@@ -223,7 +257,8 @@ export function UMKMManagement({
         </div>
       )}
 
-      <div className="umkm-list">
+      {/* Daftar UMKM */}
+      <div className="umkm-list" role="list" aria-label="Daftar UMKM">
         {!loading && filteredAccounts.length === 0 ? (
           <div className="umkm-empty">
             <p>Tidak ada UMKM dengan status {activeTab}</p>
@@ -267,11 +302,13 @@ export function UMKMManagement({
         )}
       </div>
 
+      {/* Modal detail UMKM */}
       {selectedAccount && (
         <Modal
           isOpen={showModal}
           onClose={() => setShowModal(false)}
           title="Detail UMKM"
+          aria-labelledby="modal-title"
           footer={
             selectedAccount.status === 'pending' ? (
               <>

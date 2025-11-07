@@ -1,16 +1,23 @@
 import { useState } from 'react';
 import { StatusBadge } from './StatusBadge';
 import type { Transaction } from '../../types/admin';
-import './TransactionManagement.css';
+import '../../styles/TransactionManagement.css';
 
+// Interface untuk props yang diterima oleh komponen TransactionManagement
 interface TransactionManagementProps {
-  transactions: Transaction[];
+  transactions: Transaction[];  // Daftar transaksi yang akan ditampilkan
 }
 
+/**
+ * Komponen untuk mengelola dan menampilkan daftar transaksi
+ * Menyediakan fitur filter, pencarian, dan tampilan statistik transaksi
+ */
 export function TransactionManagement({ transactions }: TransactionManagementProps) {
+  // State untuk filter dan pencarian
   const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'completed' | 'cancelled'>('all');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');  // Kata kunci pencarian
 
+  // Memfilter transaksi berdasarkan status dan kata kunci pencarian
   const filteredTransactions = transactions.filter(transaction => {
     const matchesStatus = statusFilter === 'all' || transaction.status === statusFilter;
     const matchesSearch = 
@@ -20,6 +27,11 @@ export function TransactionManagement({ transactions }: TransactionManagementPro
     return matchesStatus && matchesSearch;
   });
 
+  /**
+   * Memformat angka menjadi format mata uang Rupiah
+   * @param amount Jumlah uang yang akan diformat
+   * @returns String yang sudah diformat (contoh: "Rp 1.000.000")
+   */
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('id-ID', {
       style: 'currency',
@@ -28,6 +40,11 @@ export function TransactionManagement({ transactions }: TransactionManagementPro
     }).format(amount);
   };
 
+  /**
+   * Memformat tanggal menjadi format yang lebih mudah dibaca
+   * @param dateString String tanggal yang akan diformat
+   * @returns String tanggal yang sudah diformat (contoh: "1 Jan 2023, 12:00")
+   */
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('id-ID', {
       year: 'numeric',
@@ -38,12 +55,14 @@ export function TransactionManagement({ transactions }: TransactionManagementPro
     });
   };
 
-  const totalAmount = filteredTransactions.reduce((sum, t) => sum + t.amount, 0);
-  const completedCount = filteredTransactions.filter(t => t.status === 'completed').length;
-  const pendingCount = filteredTransactions.filter(t => t.status === 'pending').length;
+  // Menghitung statistik transaksi
+  const totalAmount = filteredTransactions.reduce((sum, t) => sum + t.amount, 0);  // Total nilai transaksi
+  const completedCount = filteredTransactions.filter(t => t.status === 'completed').length;  // Jumlah transaksi selesai
+  const pendingCount = filteredTransactions.filter(t => t.status === 'pending').length;  // Jumlah transaksi menunggu
 
   return (
     <div className="transaction-management">
+      {/* Kartu statistik ringkasan transaksi */}
       <div className="transaction-stats">
         <div className="transaction-stat-card">
           <div className="transaction-stat-label">Total Transaksi</div>
@@ -63,6 +82,7 @@ export function TransactionManagement({ transactions }: TransactionManagementPro
         </div>
       </div>
 
+      {/* Bagian filter dan pencarian */}
       <div className="transaction-filters">
         <div className="transaction-search">
           <input
@@ -101,7 +121,9 @@ export function TransactionManagement({ transactions }: TransactionManagementPro
         </div>
       </div>
 
+      {/* Container untuk tabel transaksi (desktop) dan daftar mobile */}
       <div className="transaction-table-container">
+        {/* Tampilan mobile - daftar kartu transaksi */}
         <div className="transaction-mobile-list">
           {filteredTransactions.length === 0 ? (
             <div className="transaction-empty">
@@ -140,7 +162,8 @@ export function TransactionManagement({ transactions }: TransactionManagementPro
             ))
           )}
         </div>
-        <table className="transaction-table">
+        {/* Tampilan desktop - tabel transaksi */}
+        <table className="transaction-table" aria-label="Daftar Transaksi">
           <thead>
             <tr>
               <th>ID Transaksi</th>

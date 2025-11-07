@@ -6,23 +6,32 @@ import { LoadingSpinner } from '../common/LoadingSpinner';
 import type { UMKMAccount } from '../../types/admin';
 import { apiService } from '../../services/api';
 import { mapApiArrayToUMKMAccounts } from '../../utils/umkmMapper';
-import './UMKMAccountManagement.css';
+import '../../styles/UMKMAccountManagement.css';
 
+// Interface untuk props yang diterima oleh komponen UMKMAccountManagement
 interface UMKMAccountManagementProps {
-  accounts?: UMKMAccount[];
+  accounts?: UMKMAccount[];  // Daftar akun UMKM opsional (jika tidak disediakan, akan diambil dari API)
 }
 
+/**
+ * Komponen untuk mengelola akun UMKM
+ * Menyediakan fungsionalitas untuk melihat, mencari, dan mengelola status akun UMKM
+ */
 export function UMKMAccountManagement({
   accounts: propAccounts
 }: UMKMAccountManagementProps) {
-  const [accounts, setAccounts] = useState<UMKMAccount[]>(propAccounts || []);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'suspended'>('all');
-  const [isUsingApi] = useState(!propAccounts);
+  // State untuk manajemen data dan UI
+  const [accounts, setAccounts] = useState<UMKMAccount[]>(propAccounts || []);  // Daftar akun UMKM
+  const [loading, setLoading] = useState(false);  // Status loading saat mengambil data
+  const [error, setError] = useState<string | null>(null);  // Pesan error jika terjadi kesalahan
+  const [searchQuery, setSearchQuery] = useState('');  // Kata kunci pencarian
+  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'suspended'>('all');  // Filter status akun
+  const [isUsingApi] = useState(!propAccounts);  // Flag untuk menentukan apakah menggunakan data dari API atau props
 
-  // Fetch UMKM accounts from API
+  /**
+   * Effect untuk mengambil data akun UMKM dari API jika tidak disediakan melalui props
+   * Hanya berjalan jika isUsingApi bernilai true
+   */
   useEffect(() => {
     if (!isUsingApi) {
       if (propAccounts) {
@@ -66,6 +75,10 @@ export function UMKMAccountManagement({
     fetchUMKMData();
   }, [isUsingApi, propAccounts]);
 
+  /**
+   * Memfilter daftar akun berdasarkan kata kunci pencarian dan status
+   * @returns Daftar akun yang sesuai dengan kriteria pencarian dan filter
+   */
   const filteredAccounts = accounts.filter(account => {
     const matchesSearch = account.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          account.owner.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -75,6 +88,10 @@ export function UMKMAccountManagement({
     return matchesSearch && matchesStatus;
   });
 
+  /**
+   * Menangani penangguhan akun UMKM
+   * @param account Akun UMKM yang akan ditangguhkan
+   */
   const handleSuspend = async (account: UMKMAccount) => {
     if (!confirm(`Apakah Anda yakin ingin menangguhkan akun UMKM "${account.name}"?`)) {
       return;
@@ -100,6 +117,10 @@ export function UMKMAccountManagement({
     }
   };
 
+  /**
+   * Menangani pengaktifan kembali akun UMKM yang ditangguhkan
+   * @param account Akun UMKM yang akan diaktifkan
+   */
   const handleActivate = async (account: UMKMAccount) => {
     if (!confirm(`Apakah Anda yakin ingin mengaktifkan kembali akun UMKM "${account.name}"?`)) {
       return;
@@ -125,6 +146,11 @@ export function UMKMAccountManagement({
     }
   };
 
+  /**
+   * Memformat tanggal menjadi format yang lebih mudah dibaca
+   * @param dateString String tanggal yang akan diformat
+   * @returns String tanggal yang sudah diformat (contoh: "1 Jan 2023, 12:00")
+   */
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('id-ID', {
       year: 'numeric',
@@ -135,13 +161,15 @@ export function UMKMAccountManagement({
     });
   };
 
+  // Menghitung jumlah akun aktif dan yang ditangguhkan untuk ditampilkan di statistik
   const activeCount = accounts.filter(a => a.accountStatus === 'active').length;
   const suspendedCount = accounts.filter(a => a.accountStatus === 'suspended').length;
 
   return (
-    <div className="umkm-account-management">
+    <div className="umkm-account-management" role="main" aria-label="Manajemen Akun UMKM">
 
-      <div className="umkm-account-stats">
+      {/* Statistik ringkasan akun UMKM */}
+      <div className="umkm-account-stats" aria-label="Statistik Akun UMKM">
         <div className="umkm-account-stat-card">
           <div className="umkm-account-stat-label">Total UMKM</div>
           <div className="umkm-account-stat-value">{accounts.length}</div>
@@ -169,7 +197,8 @@ export function UMKMAccountManagement({
         </div>
       )}
 
-      <div className="umkm-account-filters">
+      {/* Filter dan pencarian */}
+      <div className="umkm-account-filters" role="search">
         <div className="umkm-account-search">
           <input
             type="text"
@@ -201,7 +230,9 @@ export function UMKMAccountManagement({
         </div>
       </div>
 
+      {/* Container untuk tabel (desktop) dan daftar mobile */}
       <div className="umkm-account-table-container">
+        {/* Tampilan mobile - daftar kartu akun UMKM */}
         <div className="umkm-account-mobile-list">
           {loading ? (
             <div className="umkm-account-loading">
@@ -271,7 +302,8 @@ export function UMKMAccountManagement({
             ))
           )}
         </div>
-        <table className="umkm-account-table">
+        {/* Tampilan desktop - tabel akun UMKM */}
+        <table className="umkm-account-table" aria-label="Daftar Akun UMKM">
           <thead>
             <tr>
               <th>Nama UMKM</th>
