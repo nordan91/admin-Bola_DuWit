@@ -1,0 +1,552 @@
+# DOKUMENTASI PROYEK BOLA DUWIT
+
+## OVERVIEW PROYEK
+Bola Duwit adalah aplikasi web untuk manajemen UMKM (Usaha Mikro, Kecil, dan Menengah) yang dibangun dengan teknologi modern. Aplikasi ini menyediakan platform bagi UMKM untuk mendaftar, mengelola produk, dan melakukan transaksi online, serta panel admin untuk mengelola seluruh ekosistem.
+
+## TEKNOLOGI YANG DIGUNAKAN
+
+### Frontend
+- **Framework**: React 18+ dengan TypeScript
+- **Build Tool**: Vite
+- **Routing**: React Router DOM
+- **State Management**: React Context API
+- **UI Components**: Custom components dengan CSS modules
+- **Maps Integration**: Google Maps Platform (@vis.gl/react-google-maps)
+- **Icons**: Custom SVG icons
+
+### Backend
+- **Framework**: Laravel (PHP)
+- **Database**: MySQL dengan UUID primary keys
+- **Authentication**: Laravel Sanctum
+- **API**: RESTful API dengan response format standar
+- **Payment**: Midtrans integration
+- **Hosting**: bola-duwit.my.id
+
+### Development Tools
+- **Package Manager**: npm
+- **Linting**: ESLint dengan TypeScript rules
+- **Deployment**: Vercel
+- **Version Control**: Git
+
+## ARSITEKTUR APLIKASI
+
+### Struktur File Utama
+```
+src/
+├── components/           # Komponen UI
+│   ├── Admin/           # Komponen admin panel
+│   ├── LoginPage/       # Komponen login
+│   ├── common/          # Komponen reusable
+│   └── icons/           # Icon components
+├── contexts/            # React contexts (Auth)
+├── pages/               # Halaman utama
+├── services/            # API services
+├── types/               # TypeScript type definitions
+├── utils/               # Utility functions
+└── App.tsx             # Root component
+```
+
+### Database Schema
+
+#### Tabel Users
+- id (UUID, Primary Key)
+- nama (VARCHAR 100)
+- email (VARCHAR 45, Unique)
+- kata_sandi (VARCHAR 255, Hashed)
+- nomor_hp (VARCHAR 20, Nullable)
+- role (ENUM: umkm, guest, admin)
+- status (ENUM: pending, active, rejected)
+- created_at, updated_at (TIMESTAMP)
+
+#### Tabel UMKM Profiles
+- id (UUID, Primary Key)
+- nama_toko (VARCHAR 100)
+- deskripsi (VARCHAR 255, Nullable)
+- alamat (VARCHAR 255)
+- lintang, bujur (DECIMAL 10,7, Nullable)
+- kontak_wa (VARCHAR 30, Nullable)
+- terverifikasi (BOOLEAN, Default: false)
+- status_toko (ENUM: buka, tutup)
+- user_id (UUID, Foreign Key)
+
+#### Tabel Produk
+- id (UUID, Primary Key)
+- nama_produk (VARCHAR 100)
+- deskripsi (VARCHAR 255, Nullable)
+- harga (DECIMAL 12,2)
+- stok (INTEGER, Default: 0)
+- kategori (VARCHAR 50, Nullable)
+- url_foto, url_video (VARCHAR 255, Nullable)
+- umkm_id (UUID, Foreign Key)
+
+#### Tabel Transaksi
+- id (UUID, Primary Key)
+- jumlah (INTEGER)
+- total_harga (DECIMAL 12,2)
+- metode_pembayaran (ENUM: COD, Midtrans)
+- status_transaksi (ENUM: menunggu, diproses, dikirim, selesai, dibatalkan)
+- alamat_pengiriman (VARCHAR 255)
+- tanggal_transaksi, tanggal_diperbarui (TIMESTAMP)
+- user_id, produk_id (UUID, Foreign Key)
+
+## ALUR DATA DAN WORKFLOW
+
+### 1. Registrasi UMKM
+```
+User Register → Status: pending
+     ↓
+User dapat login untuk melengkapi profil
+     ↓
+Admin review dan approve/reject
+     ↓
+Status: active/rejected
+```
+
+### 2. Alur Data Registrasi
+```
+1. POST /api/users (role: 'umkm')
+   → User dibuat dengan status 'pending'
+
+2. User login (meskipun status pending)
+   → Response: { requires_profile: true }
+
+3. User melengkapi profil
+   → POST /api/umkm/profile
+   → Data: nama_toko, alamat, deskripsi, koordinat, WA
+
+4. Admin melihat pending UMKM
+   → GET /api/admin/pending-umkm
+   → Response: Array of users dengan umkmProfile
+
+5. Admin approve/reject
+   → POST /api/admin/approve-umkm/{id}
+   → Status berubah ke 'active'
+   → Profile terverifikasi otomatis
+```
+
+### 3. Alur Data Produk Management
+```
+UMKM Active → GET /api/produk (list produk)
+     ↓
+POST /api/produk (tambah produk)
+     ↓
+PUT /api/produk/{id} (update produk)
+DELETE /api/produk/{id} (hapus produk)
+```
+
+### 4. Alur Data Transaksi
+```
+Guest User → POST /api/transaksi
+     ↓
+Pilih produk + jumlah + alamat
+     ↓
+Pilih metode: COD atau Midtrans
+     ↓
+Status: menunggu → diproses → dikirim → selesai
+```
+
+### 5. Alur Data Admin Management
+```
+Admin Login → Dashboard
+     ↓
+GET /api/admin/pending-umkm (UMKM menunggu)
+GET /api/admin/umkm-profiles (semua UMKM)
+     ↓
+Approve/Reject actions
+     ↓
+Real-time UI updates
+```
+
+## FITUR UTAMA
+
+### 1. Authentication System
+- Multi-role: admin, umkm, guest
+- Laravel Sanctum token-based auth
+- Auto logout pada token expired
+- Protected routes berdasarkan role
+
+### 2. UMKM Management (Admin Panel)
+- View pending UMKM dengan profil lengkap
+- Approve/reject dengan alasan
+- Search dan filter UMKM
+- Status tracking: pending → approved/rejected
+- Profile verification
+
+### 3. UMKM Dashboard
+- Profile management (nama toko, alamat, deskripsi)
+- Store status toggle (buka/tutup)
+- Product CRUD operations
+- Transaction monitoring
+- WhatsApp contact integration
+
+### 4. Guest User Features
+- Browse UMKM dan produk
+- Place orders dengan COD/Midtrans
+- Transaction history
+- Location-based search (Google Maps)
+
+### 5. Product Management
+- Add/edit/delete products
+- Stock management
+- Photo/video uploads
+- Category classification
+- Price management
+
+## API ENDPOINTS UTAMA
+
+### Authentication
+- POST /api/users (register)
+- POST /api/users/login (login)
+- Bearer token untuk protected routes
+
+### UMKM Profile
+- GET /api/umkm/profile
+- POST /api/umkm/profile (create)
+- PUT /api/umkm/profile (update)
+- POST /api/umkm/toggle-store
+
+### Product Management
+- GET /api/produk (list)
+- POST /api/produk (create)
+- GET /api/produk/{id} (detail)
+- PUT /api/produk/{id} (update)
+- DELETE /api/produk/{id} (delete)
+
+### Transaction
+- GET /api/transaksi (history)
+- POST /api/transaksi (create)
+- GET /api/transaksi/{id} (detail)
+
+### Admin Endpoints
+- GET /api/admin/pending-umkm
+- POST /api/admin/approve-umkm/{id}
+- POST /api/admin/reject-umkm/{id}
+- GET /api/admin/umkm-profiles
+- POST /api/admin/verify-profile/{id}
+
+## RESPONSE FORMAT STANDAR
+```json
+{
+  "success": true|false,
+  "message": "Response message",
+  "data": {}|[]|null
+}
+```
+
+## ERROR HANDLING
+- 200: Success
+- 201: Created
+- 400: Bad Request
+- 401: Unauthorized (auto logout)
+- 403: Forbidden
+- 404: Not Found
+- 422: Validation Error
+- 500: Internal Server Error
+
+## SECURITY FEATURES
+- Role-based access control
+- Token-based authentication
+- Input validation
+- SQL injection prevention
+- XSS protection
+- CORS configuration
+- Rate limiting
+
+## DEPLOYMENT
+- Frontend: Vercel
+- Backend: Server dengan domain bola-duwit.my.id
+- Database: MySQL
+- SSL certificate untuk HTTPS
+- Environment variables untuk sensitive data
+
+## DEVELOPMENT WORKFLOW
+1. Clone repository
+2. npm install
+3. npm run dev (development)
+4. npm run build (production)
+5. npm run preview (preview build)
+
+## TESTING DATA
+Seeder tersedia untuk development:
+```bash
+php artisan db:seed --class=UmkmSeeder
+```
+
+Test accounts:
+- Admin: admin@example.com
+- UMKM Pending: umkm.pending@example.com
+- UMKM Active: umkm.active@example.com
+- Guest: guest@example.com
+
+## CUPLIKAN KODE PENTING
+
+Berikut adalah cuplikan kode-kode penting dari proyek ini dengan penjelasan detail untuk memudahkan pemahaman:
+
+### 1. STRUKTUR KOMPONEN REACT (src/App.tsx)
+```tsx
+function App() {
+  return (
+    <Router>           {/* Router untuk navigasi halaman */}
+      <AuthProvider>   {/* Context untuk state authentication global */}
+        <Routes>       {/* Definisi semua routes aplikasi */}
+          <Route path="/" element={<Navigate to="/login" replace />} />
+          <Route path="/login" element={<LoginPageWrapper />} />
+          <Route path="/admin/*" element={
+            <ProtectedRoute>  {/* Route yang butuh login */}
+              <AdminDashboardWrapper />
+            </ProtectedRoute>
+          } />
+          <Route path="/404" element={<NotFoundPage />} />
+          <Route path="*" element={<Navigate to="/404" replace />} />
+        </Routes>
+      </AuthProvider>
+    </Router>
+  );
+}
+```
+**Penjelasan**: Ini adalah root component yang mendefinisikan struktur navigasi aplikasi. Semua halaman dibungkus dengan AuthProvider agar state login bisa diakses di mana saja.
+
+### 2. API SERVICE (src/services/api.ts)
+```typescript
+class ApiService {
+  private getAuthHeader(): HeadersInit {
+    const token = localStorage.getItem('authToken');  // Ambil token dari localStorage
+    if (token) {
+      return {
+        'Authorization': `Bearer ${token}`,  // Header untuk auth
+        'Content-Type': 'application/json',
+      };
+    }
+    return { 'Content-Type': 'application/json' };
+  }
+
+  async login(credentials: LoginCredentials): Promise<LoginResponse> {
+    const response = await fetch(`${this.baseUrl}/users/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(credentials),  // Kirim data login sebagai JSON
+    });
+
+    const data: LoginResponse = await response.json();
+    if (data.data.token) {
+      localStorage.setItem('authToken', data.data.token);  // Simpan token
+    }
+    return data;
+  }
+}
+```
+**Penjelasan**: Class ini menangani semua komunikasi dengan backend API. Method `getAuthHeader()` otomatis menambahkan token Bearer ke setiap request yang butuh authentication.
+
+### 3. TYPE DEFINITIONS (src/types/admin.ts)
+```typescript
+export interface UMKMAccount {     // Interface untuk data UMKM di UI
+  id: string;
+  name: string;
+  owner: string;
+  email: string;
+  phone: string;
+  location: string;
+  category: string;
+  description: string;
+  documents: string[];
+  status: 'pending' | 'approved' | 'rejected';  // Hanya 3 status ini yang valid
+  accountStatus: 'active' | 'suspended';
+  submittedAt: string;
+  reviewedAt?: string;  // Optional field (boleh undefined)
+  image: string;
+}
+
+export interface ApiResponse<T> {  // Generic response dari API
+  success: boolean;
+  message: string;
+  data: T;  // T bisa diganti dengan tipe data apa saja
+}
+```
+**Penjelasan**: TypeScript interfaces memastikan type safety. Jika ada field yang salah tipe, TypeScript akan error saat compile, mencegah bug runtime.
+
+### 4. DATA MAPPING UTILITY (src/utils/umkmMapper.ts)
+```typescript
+export function mapApiToUMKMAccount(
+  apiData: ApiPendingUMKMUser | ApiUMKMProfileWithUser  // Union type
+): UMKMAccount {
+  // Deteksi tipe response dan ekstrak user/profile
+  let user: ApiUser | undefined;
+  let profile: ApiUMKMProfile | null | undefined;
+
+  if ('umkmProfile' in apiData) {        // Jika dari getPendingUmkm
+    user = apiData as ApiPendingUMKMUser;
+    profile = apiData.umkmProfile;
+  } else {                               // Jika dari getAllUmkmProfiles
+    const profileData = apiData as ApiUMKMProfileWithUser;
+    user = profileData.user;
+    profile = profileData;
+  }
+
+  // Fungsi untuk ekstrak kategori dari deskripsi
+  const extractCategory = (description?: string | null): string => {
+    if (!description) return 'Lainnya';
+    const keywords = {
+      'Makanan & Minuman': ['makanan', 'makan', 'warung'],
+      'Kue & Bakery': ['kue', 'bakery', 'roti'],
+      // ... lainnya
+    };
+    // Logic: cek apakah description mengandung keyword tertentu
+    const lowerDesc = description.toLowerCase();
+    for (const [category, keywords] of Object.entries(keywords)) {
+      if (keywords.some(keyword => lowerDesc.includes(keyword))) {
+        return category;  // Return kategori yang match
+      }
+    }
+    return 'Lainnya';  // Default kategori
+  };
+
+  return {
+    id: user.id,
+    name: profile?.nama_toko || 'Belum ada nama toko',  // Fallback jika null
+    owner: user.nama,
+    email: user.email,
+    category: extractCategory(profile?.deskripsi),
+    status: user.status === 'active' ? 'approved' :
+            user.status === 'rejected' ? 'rejected' : 'pending',
+    // ... field lainnya
+  };
+}
+```
+**Penjelasan**: Fungsi ini mengubah format data dari API (yang kompleks) menjadi format yang mudah digunakan UI. Union type menangani 2 jenis response API yang berbeda.
+
+### 5. KOMPONEN UMKM MANAGEMENT (src/components/Admin/UMKMManagement.tsx)
+```tsx
+export function UMKMManagement({ accounts: propAccounts, onApprove, onReject }) {
+  const [accounts, setAccounts] = useState<UMKMAccount[]>(propAccounts || []);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {    // Jalankan saat component mount
+    if (!propAccounts) {
+      // Mode API: fetch data dari backend
+      const fetchUMKMData = async () => {
+        setLoading(true);  // Tampilkan loading
+        try {
+          const response = await apiService.getAllUMKMProfiles();
+          const mappedAccounts = mapApiArrayToUMKMAccounts(response.data);
+          setAccounts(mappedAccounts);  // Update state dengan data baru
+        } catch (err) {
+          setError(err.message);  // Tampilkan error jika gagal
+        } finally {
+          setLoading(false);  // Sembunyikan loading
+        }
+      };
+      fetchUMKMData();
+    }
+  }, [propAccounts]);  // Dependency array
+
+  const handleApprove = async () => {
+    if (!selectedAccount) return;
+    setLoading(true);
+    try {
+      await apiService.approveUMKM(selectedAccount.id);  // Call API
+      // Update state lokal secara optimis (tanpa fetch ulang)
+      setAccounts(prev => prev.map(acc =>
+        acc.id === selectedAccount.id
+          ? { ...acc, status: 'approved', reviewedAt: new Date().toISOString() }
+          : acc
+      ));
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+}
+```
+**Penjelasan**: Komponen ini menampilkan list UMKM dan menangani approve/reject. useEffect untuk fetch data saat component load, dan optimistic updates untuk UX yang lebih responsif.
+
+### 6. AUTHENTICATION CONTEXT (src/contexts/AuthContext.tsx)
+```tsx
+interface AuthContextType {
+  isAuthenticated: boolean;
+  user: User | null;
+  login: (credentials: LoginCredentials) => Promise<void>;
+  logout: () => void;
+}
+
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {  // Cek token saat app load
+    const token = localStorage.getItem('authToken');
+    const userData = localStorage.getItem('userData');
+    if (token && userData) {
+      setIsAuthenticated(true);
+      setUser(JSON.parse(userData));
+    }
+  }, []);
+
+  const login = async (credentials: LoginCredentials) => {
+    const response = await apiService.login(credentials);
+    setIsAuthenticated(true);
+    setUser(response.data.user);
+  };
+
+  const logout = () => {
+    apiService.logout();  // Hapus token dari localStorage
+    setIsAuthenticated(false);
+    setUser(null);
+  };
+
+  return (
+    <AuthContext.Provider value={{ isAuthenticated, user, login, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
+}
+```
+**Penjelasan**: Context ini menyediakan state authentication ke seluruh aplikasi. Component mana saja bisa akses `isAuthenticated` dan `user` tanpa props drilling.
+
+## PENJELASAN KONSEP TEKNIS
+
+### Routing dan Navigation
+- **React Router**: Library untuk navigasi SPA (Single Page Application)
+- **Protected Routes**: Route yang hanya bisa diakses user yang sudah login
+- **AuthProvider**: Context yang membungkus seluruh app untuk state global
+
+### API Integration
+- **Fetch API**: Browser API untuk HTTP requests (modern replacement untuk XMLHttpRequest)
+- **Bearer Token**: Standard authentication menggunakan JWT token
+- **localStorage**: Penyimpanan data di browser (persistent sampai dihapus)
+
+### Type Safety dengan TypeScript
+- **Interface**: Blueprint untuk struktur objek
+- **Union Types**: Variable bisa memiliki multiple tipe (A | B)
+- **Generic Types**: Tipe yang bisa berubah-ubah, seperti `ApiResponse<T>`
+
+### Data Flow Architecture
+1. **API Response** → Data mentah dari backend
+2. **Mapper Function** → Transform ke format UI
+3. **React State** → Update component state
+4. **UI Render** → Tampilkan data ke user
+
+### State Management
+- **useState**: Hook untuk state lokal component
+- **useEffect**: Hook untuk side effects (API calls, subscriptions)
+- **Context**: Untuk state global yang dibutuhkan banyak component
+
+### Error Handling Patterns
+- **Try-catch**: Menangkap error async operations
+- **Loading States**: UI feedback saat menunggu data
+- **User-friendly Messages**: Error messages yang mudah dipahami user
+
+## FUTURE ENHANCEMENTS
+- Real-time notifications dengan WebSocket
+- Bulk approve/reject UMKM
+- Advanced analytics dashboard
+- Mobile app development
+- Multi-language support
+- Payment gateway expansion
+- AI-powered product recommendations
+
+---
+**Dibuat pada**: November 2024
+**Status**: Production Ready
+**Version**: 1.0.0

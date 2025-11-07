@@ -1,14 +1,19 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { FiMenu, FiX } from 'react-icons/fi';
-import './AdminSidebar.css';
+import '../../styles/AdminSidebar.css';
 
+// Komponen sidebar untuk navigasi halaman admin
 export function AdminSidebar() {
+  // Hooks untuk routing dan state management
   const location = useLocation();
   const navigate = useNavigate();
+  
+  // State untuk menangani tampilan mobile dan toggle sidebar
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1200);
   const [isOpen, setIsOpen] = useState(false);
 
+  // Daftar menu navigasi sidebar
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: '📊', path: '/admin/dashboard' },
     { id: 'umkm', label: 'Kelola UMKM', icon: '🏪', path: '/admin/umkm' },
@@ -17,24 +22,30 @@ export function AdminSidebar() {
     { id: 'reports', label: 'Laporan', icon: '📈', path: '/admin/reports' },
     { id: 'settings', label: 'Pengaturan', icon: '⚙️', path: '/admin/settings' }
   ];
+  
+  // Mendapatkan path saat ini untuk menandai menu aktif
 
   const currentPath = location.pathname;
 
-  // Handle window resize
+  // Effect untuk menangani perubahan ukuran layar
+  // Menyesuaikan tampilan sidebar berdasarkan lebar layar
   useEffect(() => {
     const handleResize = () => {
       const mobile = window.innerWidth < 1200;
       setIsMobile(mobile);
+      // Menutup sidebar saat beralih ke tampilan desktop
       if (!mobile) {
         setIsOpen(false);
       }
     };
 
+    // Menambahkan event listener untuk resize
     window.addEventListener('resize', handleResize);
+    // Cleanup function untuk menghapus event listener
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Close sidebar when clicking outside on mobile
+  // Effect untuk menutup sidebar saat mengklik di luar area sidebar pada tampilan mobile
   useEffect(() => {
     if (!isMobile) return;
 
@@ -42,29 +53,33 @@ export function AdminSidebar() {
       const sidebar = document.querySelector('.admin-sidebar');
       const target = e.target as HTMLElement;
       
+      // Menutup sidebar jika mengklik di luar area sidebar dan bukan tombol menu
       if (sidebar && !sidebar.contains(target) && !target.closest('.mobile-menu-button')) {
         setIsOpen(false);
       }
     };
 
+    // Menambahkan event listener untuk mendeteksi klik di luar sidebar
     document.addEventListener('mousedown', handleClickOutside);
+    // Cleanup function untuk menghapus event listener
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isMobile]);
 
-  // Toggle mobile menu
+  // Fungsi untuk menampilkan/menyembunyikan menu pada tampilan mobile
   const toggleMenu = () => {
     setIsOpen(!isOpen);
   };
 
-  // Handle navigation
+  // Fungsi untuk menangani navigasi ke halaman yang dipilih
   const handleNavigate = (path: string) => {
     navigate(path);
+    // Menutup sidebar setelah memilih menu pada tampilan mobile
     if (isMobile) {
       setIsOpen(false);
     }
   };
 
-  // Mobile menu button (only visible on mobile)
+  // Komponen tombol menu untuk tampilan mobile
   const MobileMenuButton = () => (
     <button 
       className="mobile-menu-button"
@@ -91,9 +106,10 @@ export function AdminSidebar() {
 
   return (
     <>
+      {/* Menampilkan tombol menu pada tampilan mobile */}
       <MobileMenuButton />
       
-      {/* Overlay for mobile */}
+      {/* Overlay untuk menutup sidebar saat di-klik pada tampilan mobile */}
       {isMobile && (
         <div 
           className={`admin-sidebar-overlay ${isOpen ? 'visible' : ''}`}
@@ -101,7 +117,9 @@ export function AdminSidebar() {
         />
       )}
       
+      {/* Kontainer utama sidebar */}
       <aside className={`admin-sidebar ${isMobile ? (isOpen ? 'mobile-open' : '') : ''}`}>
+        {/* Header sidebar dengan logo dan judul */}
         <div className="admin-sidebar-header">
           <img 
             src="/Logo_bola_duwit.jpg" 
@@ -116,6 +134,7 @@ export function AdminSidebar() {
           </div>
         </div>
         
+        {/* Navigasi menu sidebar */}
         <nav className="admin-sidebar-nav">
           {menuItems.map((item) => (
             <button
@@ -124,16 +143,18 @@ export function AdminSidebar() {
               onClick={() => handleNavigate(item.path)}
               title={item.label}
             >
+              {/* Ikon menu */}
               <span className="admin-sidebar-icon" aria-hidden="true">
                 {item.icon}
               </span>
+              {/* Label menu */}
               <span className="admin-sidebar-label">{item.label}</span>
             </button>
           ))}
         </nav>
         
         
-        {/* User profile or other bottom content */}
+        {/* Footer sidebar (dapat digunakan untuk informasi tambahan) */}
         <div className="admin-sidebar-footer" style={{
           padding: '1rem',
           borderTop: '1px solid var(--color-gray-200)',
@@ -141,6 +162,7 @@ export function AdminSidebar() {
           fontSize: '0.75rem',
           color: 'var(--color-gray-500)'
         }}>
+          {/* Konten footer dapat ditambahkan di sini */}
         </div>
       </aside>
     </>

@@ -1,13 +1,17 @@
 import { StatCard } from './StatCard';
 import type { DashboardStats, RecentActivity } from '../../types/admin';
-import './DashboardOverview.css';
+import '../../styles/DashboardOverview.css';
 
+// Interface untuk props yang diterima oleh komponen DashboardOverview
 interface DashboardOverviewProps {
-  stats: DashboardStats;
-  recentActivities: RecentActivity[];
+  stats: DashboardStats;              // Data statistik yang akan ditampilkan
+  recentActivities: RecentActivity[]; // Daftar aktivitas terbaru
 }
 
+// Komponen untuk menampilkan ringkasan dashboard admin
+// Menampilkan statistik dan aktivitas terbaru
 export function DashboardOverview({ stats, recentActivities }: DashboardOverviewProps) {
+  // Fungsi untuk memformat angka menjadi format mata uang Rupiah
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('id-ID', {
       style: 'currency',
@@ -16,6 +20,8 @@ export function DashboardOverview({ stats, recentActivities }: DashboardOverview
     }).format(amount);
   };
 
+  // Fungsi untuk memformat tanggal menjadi format yang lebih mudah dibaca
+  // Contoh: '2 menit yang lalu', '3 jam yang lalu', '1 hari yang lalu'
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
@@ -29,6 +35,7 @@ export function DashboardOverview({ stats, recentActivities }: DashboardOverview
     return `${diffDays} hari yang lalu`;
   };
 
+  // Fungsi untuk mendapatkan ikon berdasarkan jenis aktivitas
   const getActivityIcon = (type: string) => {
     switch (type) {
       case 'transaction':
@@ -46,6 +53,7 @@ export function DashboardOverview({ stats, recentActivities }: DashboardOverview
 
   return (
     <div className="dashboard-overview">
+      {/* Grid untuk menampilkan statistik utama */}
       <div className="dashboard-stats-grid">
         <StatCard
           title="Total UMKM"
@@ -73,7 +81,9 @@ export function DashboardOverview({ stats, recentActivities }: DashboardOverview
         />
       </div>
 
+      {/* Grid untuk konten utama dashboard */}
       <div className="dashboard-content-grid">
+        {/* Kartu untuk menampilkan statistik hari ini */}
         <div className="dashboard-card">
           <div className="dashboard-card-header">
             <h3 className="dashboard-card-title">Statistik Hari Ini</h3>
@@ -92,11 +102,13 @@ export function DashboardOverview({ stats, recentActivities }: DashboardOverview
           </div>
         </div>
 
+        {/* Kartu untuk menampilkan aktivitas terbaru */}
         <div className="dashboard-card">
           <div className="dashboard-card-header">
             <h3 className="dashboard-card-title">Aktivitas Terbaru</h3>
           </div>
           <div className="dashboard-card-body">
+            {/* Daftar aktivitas terbaru */}
             <div className="activity-list">
               {recentActivities.map((activity) => (
                 <div key={activity.id} className="activity-item">
