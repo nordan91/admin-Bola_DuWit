@@ -13,8 +13,8 @@ interface DashboardOverviewProps {
 
 // Komponen untuk menampilkan ringkasan dashboard admin
 // Menampilkan statistik dan aktivitas terbaru
-export function DashboardOverview({ recentActivities }: DashboardOverviewProps) {
-  const [stats, setStats] = useState<DashboardStats>({
+export function DashboardOverview({ recentActivities, stats: initialStats }: DashboardOverviewProps) {
+  const [stats, setStats] = useState<DashboardStats>(initialStats || {
     totalUMKM: 0,
     pendingApprovals: 0,
     activeUMKM: 0,
