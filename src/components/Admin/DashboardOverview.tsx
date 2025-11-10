@@ -1,55 +1,90 @@
+import { useState, useEffect } from 'react';
 import { StatCard } from './StatCard';
 import type { DashboardStats, RecentActivity } from '../../types/admin';
+import { apiService } from '../../services/api';
+import { LoadingSpinner } from '../common/LoadingSpinner';
 import '../../styles/DashboardOverview.css';
 
 // Interface untuk props yang diterima oleh komponen DashboardOverview
 interface DashboardOverviewProps {
-  stats: DashboardStats;              // Data statistik yang akan ditampilkan
+  stats?: DashboardStats;              // Data statistik yang akan ditampilkan (opsional)
   recentActivities: RecentActivity[]; // Daftar aktivitas terbaru
 }
 
 // Komponen untuk menampilkan ringkasan dashboard admin
 // Menampilkan statistik dan aktivitas terbaru
-export function DashboardOverview({ stats, recentActivities }: DashboardOverviewProps) {
-  // Fungsi untuk memformat angka menjadi format mata uang Rupiah
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('id-ID', {
-      style: 'currency',
-      currency: 'IDR',
-      minimumFractionDigits: 0
-    }).format(amount);
-  };
+export function DashboardOverview({ recentActivities }: DashboardOverviewProps) {
+  const [stats, setStats] = useState<DashboardStats>({
+    totalUMKM: 0,
+    pendingApprovals: 0,
+    activeUMKM: 0,
+    suspendedUMKM: 0,
+    totalTransactions: 0,
+    totalRevenue: 0,
+    todayTransactions: 0,
+    todayRevenue: 0
+  });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Fungsi untuk memformat tanggal menjadi format yang lebih mudah dibaca
-  // Contoh: '2 menit yang lalu', '3 jam yang lalu', '1 hari yang lalu'
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffMins = Math.floor(diffMs / 60000);
-    const diffHours = Math.floor(diffMs / 3600000);
-    const diffDays = Math.floor(diffMs / 86400000);
+  useEffect(() => {
+    const fetchUMKMStats = async () => {
+      try {
+        setLoading(true);
+        const response = await apiService.getAllUMKMProfiles();
+        
+        if (response.success && response.data) {
+          const profiles = response.data;
+          const totalUMKM = profiles.length;
+          const pendingApprovals = profiles.filter(p => p.user.status === 'pending').length;
+          const activeUMKM = profiles.filter(p => p.user.status === 'active').length;
+          const suspendedUMKM = profiles.filter(p => p.user.status === 'suspended').length;
+          
+          setStats({
+            totalUMKM,
+            pendingApprovals,
+            activeUMKM,
+            suspendedUMKM,
+            totalTransactions: 0, // You can update these with actual transaction data
+            totalRevenue: 0,     // You can update these with actual revenue data
+            todayTransactions: 0, // You can update these with actual today's data
+            todayRevenue: 0       // You can update these with actual today's data
+          });
+        } else {
+          throw new Error(response.message || 'Gagal memuat statistik UMKM');
+        }
+      } catch (err) {
+        console.error('Error fetching UMKM stats:', err);
+        setError(err instanceof Error ? err.message : 'Terjadi kesalahan saat memuat statistik');
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    if (diffMins < 60) return `${diffMins} menit yang lalu`;
-    if (diffHours < 24) return `${diffHours} jam yang lalu`;
-    return `${diffDays} hari yang lalu`;
-  };
+    fetchUMKMStats();
+  }, []);
 
-  // Fungsi untuk mendapatkan ikon berdasarkan jenis aktivitas
-  const getActivityIcon = (type: string) => {
-    switch (type) {
-      case 'transaction':
-        return '💳';
-      case 'umkm_approval':
-        return '✅';
-      case 'umkm_rejection':
-        return '❌';
-      case 'new_umkm':
-        return '🏪';
-      default:
-        return '📋';
-    }
-  };
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <LoadingSpinner size="lg" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-4 text-red-600 bg-red-100 rounded-lg">
+        <p>Error: {error}</p>
+        <button 
+          onClick={() => window.location.reload()}
+          className="px-4 py-2 mt-2 text-white bg-blue-600 rounded hover:bg-blue-700"
+        >
+          Muat Ulang
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="dashboard-overview">
@@ -68,60 +103,17 @@ export function DashboardOverview({ stats, recentActivities }: DashboardOverview
           color="warning"
         />
         <StatCard
-          title="Total Transaksi"
-          value={stats.totalTransactions}
-          icon={<span style={{ fontSize: '24px' }}>💳</span>}
-          color="info"
-        />
-        <StatCard
-          title="Total Pendapatan"
-          value={formatCurrency(stats.totalRevenue)}
-          icon={<span style={{ fontSize: '24px' }}>💰</span>}
+          title="UMKM Aktif"
+          value={stats.activeUMKM}
+          icon={<span style={{ fontSize: '24px' }}>✅</span>}
           color="success"
         />
-      </div>
-
-      {/* Grid untuk konten utama dashboard */}
-      <div className="dashboard-content-grid">
-        {/* Kartu untuk menampilkan statistik hari ini */}
-        <div className="dashboard-card">
-          <div className="dashboard-card-header">
-            <h3 className="dashboard-card-title">Statistik Hari Ini</h3>
-          </div>
-          <div className="dashboard-card-body">
-            <div className="today-stats">
-              <div className="today-stat-item">
-                <div className="today-stat-label">Transaksi Hari Ini</div>
-                <div className="today-stat-value">{stats.todayTransactions}</div>
-              </div>
-              <div className="today-stat-item">
-                <div className="today-stat-label">Pendapatan Hari Ini</div>
-                <div className="today-stat-value">{formatCurrency(stats.todayRevenue)}</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Kartu untuk menampilkan aktivitas terbaru */}
-        <div className="dashboard-card">
-          <div className="dashboard-card-header">
-            <h3 className="dashboard-card-title">Aktivitas Terbaru</h3>
-          </div>
-          <div className="dashboard-card-body">
-            {/* Daftar aktivitas terbaru */}
-            <div className="activity-list">
-              {recentActivities.map((activity) => (
-                <div key={activity.id} className="activity-item">
-                  <div className="activity-icon">{getActivityIcon(activity.type)}</div>
-                  <div className="activity-content">
-                    <div className="activity-description">{activity.description}</div>
-                    <div className="activity-time">{formatDate(activity.timestamp)}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
+        <StatCard
+          title="UMKM Ditangguhkan"
+          value={stats.suspendedUMKM}
+          icon={<span style={{ fontSize: '24px' }}>⛔</span>}
+          color="warning"
+        />
       </div>
     </div>
   );

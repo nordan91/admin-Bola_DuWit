@@ -29,7 +29,7 @@ export function UMKMManagement({
   onReject: propOnReject 
 }: UMKMManagementProps) {
   // State untuk manajemen data dan UI
-  const [activeTab, setActiveTab] = useState<'pending' | 'approved' | 'rejected'>('pending');  // Tab aktif
+  const [activeTab, setActiveTab] = useState<'pending' | 'approved' | 'rejected' | 'suspended'>('pending');  // Tab aktif
   const [selectedAccount, setSelectedAccount] = useState<UMKMAccount | null>(null);  // Akun UMKM yang dipilih
   const [showModal, setShowModal] = useState(false);  // Status tampilan modal detail
   const [searchQuery, setSearchQuery] = useState('');  // Kata kunci pencarian
@@ -89,10 +89,28 @@ export function UMKMManagement({
    * @returns Daftar akun UMKM yang sesuai dengan kriteria pencarian dan filter
    */
   const filteredAccounts = accounts.filter(account => {
+    // Menangani tab suspended terlebih dahulu
+    if (activeTab === 'suspended') {
+      return account.accountStatus === 'suspended' && 
+             (account.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+              account.owner.toLowerCase().includes(searchQuery.toLowerCase()) ||
+              account.category.toLowerCase().includes(searchQuery.toLowerCase()));
+    }
+    
+    // Untuk tab lainnya (pending/approved/rejected), filter akun yang tidak ditangguhkan
+    if (account.accountStatus === 'suspended') {
+      return false;
+    }
+    
+    // Memeriksa apakah akun sesuai dengan tab yang aktif (pending/approved/rejected)
     const matchesTab = account.status === activeTab;
+    
+    // Memeriksa apakah akun sesuai dengan kata kunci pencarian
     const matchesSearch = account.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          account.owner.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          account.category.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    // Mengembalikan true hanya jika akun sesuai dengan tab aktif DAN kata kunci pencarian
     return matchesTab && matchesSearch;
   });
 
@@ -235,19 +253,25 @@ export function UMKMManagement({
           className={`umkm-tab ${activeTab === 'pending' ? 'active' : ''}`}
           onClick={() => setActiveTab('pending')}
         >
-          Menunggu ({accounts.filter(a => a.status === 'pending').length})
+          Menunggu ({accounts.filter(a => a.status === 'pending' && a.accountStatus !== 'suspended').length})
         </button>
         <button
           className={`umkm-tab ${activeTab === 'approved' ? 'active' : ''}`}
           onClick={() => setActiveTab('approved')}
         >
-          Disetujui ({accounts.filter(a => a.status === 'approved').length})
+          Disetujui ({accounts.filter(a => a.status === 'approved' && a.accountStatus !== 'suspended').length})
         </button>
         <button
           className={`umkm-tab ${activeTab === 'rejected' ? 'active' : ''}`}
           onClick={() => setActiveTab('rejected')}
         >
-          Ditolak ({accounts.filter(a => a.status === 'rejected').length})
+          Ditolak ({accounts.filter(a => a.status === 'rejected' && a.accountStatus !== 'suspended').length})
+        </button>
+        <button
+          className={`umkm-tab ${activeTab === 'suspended' ? 'active' : ''}`}
+          onClick={() => setActiveTab('suspended')}
+        >
+          Ditangguhkan ({accounts.filter(a => a.accountStatus === 'suspended').length})
         </button>
       </div>
 
@@ -261,7 +285,11 @@ export function UMKMManagement({
       <div className="umkm-list" role="list" aria-label="Daftar UMKM">
         {!loading && filteredAccounts.length === 0 ? (
           <div className="umkm-empty">
-            <p>Tidak ada UMKM dengan status {activeTab}</p>
+            <p>
+              {activeTab === 'suspended' 
+                ? 'Tidak ada UMKM yang ditangguhkan' 
+                : `Tidak ada UMKM dengan status ${activeTab}`}
+            </p>
           </div>
         ) : !loading && (
           filteredAccounts.map((account) => (
@@ -270,7 +298,10 @@ export function UMKMManagement({
               <div className="umkm-info">
                 <div className="umkm-info-header">
                   <h3 className="umkm-name">{account.name}</h3>
-                  <StatusBadge status={account.status} size="sm" />
+                  <StatusBadge 
+                    status={account.status === 'suspended' ? 'suspended' : account.status} 
+                    size="sm" 
+                  />
                 </div>
                 <div className="umkm-details">
                   <div className="umkm-detail-item">
@@ -380,7 +411,9 @@ export function UMKMManagement({
               </div>
               <div className="umkm-modal-field">
                 <label>Status</label>
-                <StatusBadge status={selectedAccount.status} />
+                <StatusBadge 
+                  status={selectedAccount.status === 'suspended' ? 'suspended' : selectedAccount.status} 
+                />
               </div>
             </div>
           </div>

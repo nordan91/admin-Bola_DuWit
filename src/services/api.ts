@@ -206,11 +206,15 @@ class ApiService {
     }
   }
 
-  async suspendUMKM(userId: string): Promise<ApiResponse<ApiUser>> {
+  async suspendUMKM(userId: string, data: { reason: string; duration_days: number | null }): Promise<ApiResponse<ApiUser>> {
     try {
       const response = await fetch(`${this.baseUrl}/admin/suspend-umkm/${userId}`, {
         method: 'POST',
         headers: this.getAuthHeader(),
+        body: JSON.stringify({
+          reason: data.reason,
+          duration_days: data.duration_days
+        })
       });
 
       return await this.handleResponse<ApiResponse<ApiUser>>(response);
@@ -228,6 +232,24 @@ class ApiService {
 
       return await this.handleResponse<ApiResponse<ApiUser>>(response);
     } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
+   * Membatalkan penangguhan akun UMKM
+   * @param userId ID pengguna UMKM yang akan dibatalkan penangguhannya
+   */
+  async unsuspendUMKM(userId: string): Promise<ApiResponse<ApiUser>> {
+    try {
+      const response = await fetch(`${this.baseUrl}/admin/unsuspend-umkm/${userId}`, {
+        method: 'POST',
+        headers: this.getAuthHeader(),
+      });
+
+      return await this.handleResponse<ApiResponse<ApiUser>>(response);
+    } catch (error) {
+      console.error('Error unsuspending UMKM account:', error);
       throw error;
     }
   }

@@ -3,7 +3,7 @@ import '../../styles/StatusBadge.css';
 // Interface untuk props yang diterima oleh komponen StatusBadge
 interface StatusBadgeProps {
   // Status yang menentukan tampilan dan teks badge
-  status: 'pending' | 'approved' | 'rejected' | 'completed' | 'cancelled';
+  status: 'pending' | 'approved' | 'rejected' | 'suspended' | 'completed' | 'cancelled';
   // Ukuran opsional untuk badge (kecil atau sedang)
   size?: 'sm' | 'md';
 }
@@ -25,6 +25,8 @@ export function StatusBadge({ status, size = 'md' }: StatusBadgeProps) {
         return 'Disetujui';     // Status disetujui/diterima
       case 'rejected':
         return 'Ditolak';       // Status ditolak/tidak disetujui
+      case 'suspended':
+        return 'Ditangguhkan';  // Status ditangguhkan
       case 'completed':
         return 'Selesai';       // Status selesai/terpenuhi
       case 'cancelled':

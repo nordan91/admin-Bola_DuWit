@@ -1,3 +1,7 @@
+:root {
+  --color-danger: #FF0000;
+}
+
 .dashboard-overview {
   margin-top: 5rem;
   padding: var(--spacing-xl);
