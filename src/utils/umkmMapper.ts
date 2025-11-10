@@ -83,12 +83,14 @@ export function mapApiToUMKMAccount(
   };
 
   // Map user status to UMKMAccount status
-  const mapStatus = (userStatus: string): 'pending' | 'approved' | 'rejected' => {
+  const mapStatus = (userStatus: string): 'pending' | 'approved' | 'rejected' | 'suspended' => {
     switch (userStatus) {
       case 'active':
         return 'approved';
       case 'rejected':
         return 'rejected';
+      case 'suspended':
+        return 'suspended';
       case 'pending':
       default:
         return 'pending';

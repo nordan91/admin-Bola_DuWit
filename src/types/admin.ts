@@ -10,7 +10,7 @@ export interface UMKMAccount {
   category: string;
   description: string;
   documents: string[];
-  status: 'pending' | 'approved' | 'rejected';
+  status: 'pending' | 'approved' | 'rejected' | 'suspended';
   accountStatus: 'active' | 'suspended';
   submittedAt: string;
   reviewedAt?: string;
@@ -24,7 +24,7 @@ export interface ApiUser {
   email: string;
   nomor_hp: string | null;
   role: 'umkm' | 'guest' | 'admin';
-  status: 'pending' | 'active' | 'rejected';
+  status: 'pending' | 'active' | 'rejected' | 'suspended';
   created_at: string;
   updated_at: string | null;
   // Additional fields from getPendingUmkm response
@@ -90,6 +90,8 @@ export interface TransactionItem {
 export interface DashboardStats {
   totalUMKM: number;
   pendingApprovals: number;
+  activeUMKM: number;
+  suspendedUMKM: number;
   totalTransactions: number;
   totalRevenue: number;
   todayTransactions: number;

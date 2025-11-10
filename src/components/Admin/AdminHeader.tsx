@@ -23,7 +23,7 @@ export function AdminHeader({ onLogout }: AdminHeaderProps) {
           {/* Container untuk informasi user */}
           <div className="admin-user-info">
             {/* Avatar user dengan inisial nama */}
-            <div className="admin-user-avatar">A</div>
+            <div className="admin-user-avatar">{user?.nama ? user.nama.charAt(0).toUpperCase() : 'A'}</div>
             
             {/* Detail user seperti nama dan role */}
             <div className="admin-user-details">

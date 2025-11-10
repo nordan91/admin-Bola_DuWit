@@ -8,6 +8,12 @@ import { apiService } from '../../services/api';
 import { mapApiArrayToUMKMAccounts } from '../../utils/umkmMapper';
 import '../../styles/UMKMAccountManagement.css';
 
+// Interface untuk data suspensi
+interface SuspensionFormData {
+  suspension_reason: string;
+  suspend_duration: number; // Durasi dalam hari
+}
+
 // Interface untuk props yang diterima oleh komponen UMKMAccountManagement
 interface UMKMAccountManagementProps {
   accounts?: UMKMAccount[];  // Daftar akun UMKM opsional (jika tidak disediakan, akan diambil dari API)
@@ -27,6 +33,14 @@ export function UMKMAccountManagement({
   const [searchQuery, setSearchQuery] = useState('');  // Kata kunci pencarian
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'suspended'>('all');  // Filter status akun
   const [isUsingApi] = useState(!propAccounts);  // Flag untuk menentukan apakah menggunakan data dari API atau props
+  
+  // State untuk modal dan form suspensi
+  const [showSuspensionModal, setShowSuspensionModal] = useState(false);
+  const [selectedAccount, setSelectedAccount] = useState<UMKMAccount | null>(null);
+  const [suspensionData, setSuspensionData] = useState<SuspensionFormData>({
+    suspension_reason: '',
+    suspend_duration: 7 // Default 7 hari
+  });
 
   /**
    * Effect untuk mengambil data akun UMKM dari API jika tidak disediakan melalui props
@@ -53,10 +67,9 @@ export function UMKMAccountManagement({
           try {
             const allAccounts: UMKMAccount[] = mapApiArrayToUMKMAccounts(response.data);
 
-            // Filter only approved accounts
-            const approvedAccounts = allAccounts.filter(account => account.status === 'approved');
-
-            setAccounts(approvedAccounts);
+            // Menampilkan semua akun termasuk yang ditangguhkan (suspended)
+            // Sebelumnya hanya menampilkan akun dengan status 'approved'
+            setAccounts(allAccounts);
           } catch (mapError) {
             console.error('Error mapping UMKM accounts:', mapError);
             setError('Gagal memproses data UMKM');
@@ -89,26 +102,80 @@ export function UMKMAccountManagement({
   });
 
   /**
-   * Menangani penangguhan akun UMKM
+   * Membuka modal penangguhan untuk akun yang dipilih
    * @param account Akun UMKM yang akan ditangguhkan
    */
-  const handleSuspend = async (account: UMKMAccount) => {
-    if (!confirm(`Apakah Anda yakin ingin menangguhkan akun UMKM "${account.name}"?`)) {
+  const openSuspendModal = (account: UMKMAccount) => {
+    setSelectedAccount(account);
+    setSuspensionData({
+      suspension_reason: '',
+      suspend_duration: 7 // Reset ke default 7 hari
+    });
+    setShowSuspensionModal(true);
+  };
+
+  /**
+   * Menangani perubahan input pada form suspensi
+   */
+  const handleSuspensionInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setSuspensionData(prev => ({
+      ...prev,
+      [name]: name === 'suspend_duration' ? parseInt(value, 10) : value
+    }));
+  };
+
+  /**
+   * Menangani penangguhan akun UMKM
+   */
+  const handleSuspend = async () => {
+    if (!selectedAccount) return;
+    
+    // Validasi input
+    if (!suspensionData.suspension_reason.trim()) {
+      setError('Alasan penangguhan harus diisi');
+      return;
+    }
+
+    if (isNaN(suspensionData.suspend_duration) || suspensionData.suspend_duration <= 0) {
+      setError('Lama suspend harus lebih dari 0 hari');
       return;
     }
 
     setLoading(true);
     try {
-      await apiService.suspendUMKM(account.id);
+      // Hitung tanggal berakhir berdasarkan durasi
+      const today = new Date();
+      const endDate = new Date();
+      endDate.setDate(today.getDate() + suspensionData.suspend_duration);
+      
+      // Panggil API untuk menangguhkan akun
+      await apiService.suspendUMKM(selectedAccount.id, {
+        reason: suspensionData.suspension_reason.trim(),
+        duration_days: suspensionData.suspend_duration
+      });
 
       // Update local state
       setAccounts(prevAccounts =>
         prevAccounts.map(acc =>
-          acc.id === account.id
-            ? { ...acc, accountStatus: 'suspended' as const }
+          acc.id === selectedAccount.id
+            ? { 
+                ...acc, 
+                accountStatus: 'suspended' as const,
+                suspension_reason: suspensionData.suspension_reason.trim(),
+                suspended_at: today.toISOString().split('T')[0],
+                suspension_end_date: endDate.toISOString().split('T')[0]
+              }
             : acc
         )
       );
+      
+      // Tutup modal dan reset state
+      setShowSuspensionModal(false);
+      setError(null);
+      
+      // Tampilkan pesan sukses
+      alert('Akun berhasil ditangguhkan');
     } catch (err) {
       console.error('Error suspending UMKM:', err);
       setError(err instanceof Error ? err.message : 'Gagal menangguhkan UMKM');
@@ -128,18 +195,28 @@ export function UMKMAccountManagement({
 
     setLoading(true);
     try {
-      await apiService.activateUMKM(account.id);
+      // Menggunakan unsuspendUMKM untuk mengaktifkan kembali akun yang ditangguhkan
+      await apiService.unsuspendUMKM(account.id);
 
       // Update local state
       setAccounts(prevAccounts =>
         prevAccounts.map(acc =>
           acc.id === account.id
-            ? { ...acc, accountStatus: 'active' as const }
+            ? { 
+                ...acc, 
+                accountStatus: 'active' as const,
+                suspension_reason: undefined,
+                suspended_at: undefined,
+                suspension_end_date: undefined
+              }
             : acc
         )
       );
+      
+      // Tampilkan pesan sukses
+      alert('Akun berhasil diaktifkan kembali');
     } catch (err) {
-      console.error('Error activating UMKM:', err);
+      console.error('Error mengaktifkan UMKM:', err);
       setError(err instanceof Error ? err.message : 'Gagal mengaktifkan UMKM');
     } finally {
       setLoading(false);
@@ -183,6 +260,152 @@ export function UMKMAccountManagement({
           <div className="umkm-account-stat-value">{suspendedCount}</div>
         </div>
       </div>
+
+      {/* Modal Suspensi */}
+      {showSuspensionModal && selectedAccount && (
+        <div className="modal-overlay" style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000
+        }}>
+          <div className="modal-content" style={{
+            backgroundColor: 'white',
+            padding: '1.5rem',
+            borderRadius: '0.5rem',
+            width: '90%',
+            maxWidth: '500px',
+            maxHeight: '90vh',
+            overflowY: 'auto'
+          }}>
+            <h3 style={{ marginTop: 0, marginBottom: '1.5rem' }}>
+              Tangguhkan Akun UMKM
+            </h3>
+            
+            {/* Informasi Akun */}
+            <div style={{ marginBottom: '1rem' }}>
+              <div style={{ marginBottom: '0.5rem', fontWeight: 'bold' }}>Nama UMKM:</div>
+              <div>{selectedAccount.name}</div>
+            </div>
+
+            {/* Form Suspensi */}
+            <div style={{ marginBottom: '1rem' }}>
+              <label htmlFor="suspension_reason" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
+                Alasan Penangguhan <span style={{ color: 'red' }}>*</span>
+              </label>
+              <textarea
+                id="suspension_reason"
+                name="suspension_reason"
+                value={suspensionData.suspension_reason}
+                onChange={handleSuspensionInputChange}
+                rows={3}
+                style={{
+                  width: '100%',
+                  padding: '0.5rem',
+                  border: '1px solid #ddd',
+                  borderRadius: '0.25rem',
+                  fontFamily: 'inherit',
+                  resize: 'vertical'
+                }}
+                placeholder="Masukkan alasan penangguhan..."
+                required
+              />
+            </div>
+
+            <div style={{ marginBottom: '1rem' }}>
+              <label htmlFor="suspend_duration" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
+                Lama Suspend (Hari) <span style={{ color: 'red' }}>*</span>
+              </label>
+              <select
+                id="suspend_duration"
+                name="suspend_duration"
+                value={suspensionData.suspend_duration}
+                onChange={handleSuspensionInputChange}
+                style={{
+                  width: '100%',
+                  padding: '0.5rem',
+                  border: '1px solid #ddd',
+                  borderRadius: '0.25rem',
+                  backgroundColor: 'white'
+                }}
+                disabled={loading}
+                required
+              >
+                <option value="1">1 Hari</option>
+                <option value="3">3 Hari</option>
+                <option value="7">1 Minggu</option>
+                <option value="14">2 Minggu</option>
+                <option value="30">1 Bulan</option>
+                <option value="90">3 Bulan</option>
+                <option value="180">6 Bulan</option>
+                <option value="365">1 Tahun</option>
+              </select>
+            </div>
+
+            {/* Pesan Error */}
+            {error && (
+              <div style={{
+                padding: '0.75rem',
+                marginBottom: '1rem',
+                backgroundColor: '#fee',
+                color: '#c33',
+                borderRadius: '0.25rem',
+                border: '1px solid #fcc'
+              }}>
+                {error}
+              </div>
+            )}
+
+            {/* Tombol Aksi */}
+            <div style={{
+              display: 'flex',
+              justifyContent: 'flex-end',
+              gap: '0.75rem',
+              marginTop: '1.5rem'
+            }}>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowSuspensionModal(false);
+                  setError(null);
+                }}
+                style={{
+                  padding: '0.5rem 1rem',
+                  backgroundColor: '#f0f0f0',
+                  border: '1px solid #ddd',
+                  borderRadius: '0.25rem',
+                  cursor: 'pointer'
+                }}
+                disabled={loading}
+              >
+                Batal
+              </button>
+              <button
+                type="button"
+                onClick={handleSuspend}
+                style={{
+                  padding: '0.5rem 1rem',
+                  backgroundColor: '#dc3545',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '0.25rem',
+                  cursor: 'pointer',
+                  opacity: loading ? 0.7 : 1
+                }}
+                disabled={loading}
+              >
+                {loading ? 'Memproses...' : 'Tangguhkan'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {error && (
         <div className="umkm-account-error" style={{
@@ -281,7 +504,10 @@ export function UMKMAccountManagement({
                   {account.accountStatus === 'active' ? (
                     <button
                       className="umkm-account-action-btn suspend"
-                      onClick={() => handleSuspend(account)}
+                      onClick={() => {
+                        setSelectedAccount(account);
+                        setShowSuspensionModal(true);
+                      }}
                       disabled={loading}
                     >
                       <XIcon width={16} height={16} />
@@ -347,7 +573,7 @@ export function UMKMAccountManagement({
                     {account.accountStatus === 'active' ? (
                       <button
                         className="umkm-account-action-btn suspend"
-                        onClick={() => handleSuspend(account)}
+                        onClick={() => openSuspendModal(account)}
                         disabled={loading}
                       >
                         <XIcon width={16} height={16} />

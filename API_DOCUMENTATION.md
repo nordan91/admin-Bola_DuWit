@@ -16,7 +16,10 @@ All protected endpoints require Bearer token authentication using Laravel Sanctu
 | kata_sandi | VARCHAR(255) | Hashed password | Required |
 | nomor_hp | VARCHAR(20) | Phone number | Nullable |
 | role | ENUM | User role | Required (umkm, guest, admin) |
-| status | ENUM | Account status | Required (pending, active, rejected) |
+| status | ENUM | Account status | Required (pending, active, rejected, suspended) |
+| suspension_reason | TEXT | Reason for suspension | Nullable |
+| suspended_at | TIMESTAMP | Suspension start date | Nullable |
+| suspension_end_date | TIMESTAMP | Suspension end date | Nullable |
 | created_at | TIMESTAMP | Creation timestamp | Auto |
 | updated_at | TIMESTAMP | Update timestamp | Nullable |
 
@@ -175,14 +178,16 @@ All protected endpoints require Bearer token authentication using Laravel Sanctu
 
 #### Get Products
 **GET** `https://bola-duwit.my.id/api/produk`
-- **Description**: Get all products for current UMKM
-- **Auth**: Bearer token (umkm role, active status)
+- **Description**: Get products (UMKM: own products, Guest: products from verified UMKM with open stores)
+- **Auth**: Bearer token (umkm or guest role)
+- **Query Parameters**:
+  - `umkm_id` (optional, UUID): Filter products by specific UMKM ID
 - **Response**: List of products
 
 #### Create Product
 **POST** `https://bola-duwit.my.id/api/produk`
-- **Description**: Create a new product
-- **Auth**: Bearer token (umkm role, active status)
+- **Description**: Create a new product (UMKM only)
+- **Auth**: Bearer token (umkm role)
 - **Request Body**:
   ```json
   {
@@ -199,23 +204,23 @@ All protected endpoints require Bearer token authentication using Laravel Sanctu
 
 #### Get Product Detail
 **GET** `https://bola-duwit.my.id/api/produk/{id}`
-- **Description**: Get specific product details
-- **Auth**: Bearer token (umkm role, active status)
+- **Description**: Get specific product details (UMKM: own products, Guest: products from verified UMKM with open stores)
+- **Auth**: Bearer token (umkm or guest role)
 - **Parameters**: id (UUID)
 - **Response**: Product details
 
 #### Update Product
 **PUT** `https://bola-duwit.my.id/api/produk/{id}`
-- **Description**: Update product
-- **Auth**: Bearer token (umkm role, active status)
+- **Description**: Update product (UMKM only)
+- **Auth**: Bearer token (umkm role)
 - **Parameters**: id (UUID)
 - **Request Body**: Same as create, all fields optional except when specified
 - **Response**: Updated product data
 
 #### Delete Product
 **DELETE** `https://bola-duwit.my.id/api/produk/{id}`
-- **Description**: Delete product
-- **Auth**: Bearer token (umkm role, active status)
+- **Description**: Delete product (UMKM only)
+- **Auth**: Bearer token (umkm role)
 - **Parameters**: id (UUID)
 - **Response**: Success message
 
@@ -254,7 +259,7 @@ All protected endpoints require Bearer token authentication using Laravel Sanctu
 - **Response**: List of all users
 
 #### Get All UMKM Profiles
-**GET** `https://bola-duwit.my.id/api/admin/umkm-profiles`
+**GET** ` `
 - **Description**: Get all UMKM profiles
 - **Auth**: Bearer token (admin role)
 - **Response**: List of all UMKM profiles with user data
@@ -265,6 +270,33 @@ All protected endpoints require Bearer token authentication using Laravel Sanctu
 - **Auth**: Bearer token (admin role)
 - **Parameters**: id (UUID)
 - **Response**: Updated profile data
+
+#### Suspend UMKM User
+**POST** `https://bola-duwit.my.id/api/admin/suspend-umkm/{id}`
+- **Description**: Suspend UMKM user account
+- **Auth**: Bearer token (admin role)
+- **Parameters**: id (UUID)
+- **Request Body**:
+  ```json
+  {
+    "reason": "string (required, max:500)",
+    "duration_days": "integer (nullable, min:1, max:365)"
+  }
+  ```
+- **Response**: Updated user data with suspension details
+
+#### Unsuspend UMKM User
+**POST** `https://bola-duwit.my.id/api/admin/unsuspend-umkm/{id}`
+- **Description**: Restore suspended UMKM user to active status
+- **Auth**: Bearer token (admin role)
+- **Parameters**: id (UUID)
+- **Response**: Updated user data
+
+#### Get Suspended UMKM Users
+**GET** `https://bola-duwit.my.id/api/admin/suspended-umkm`
+- **Description**: Get all suspended UMKM users with suspension details
+- **Auth**: Bearer token (admin role)
+- **Response**: List of suspended UMKM users with suspension information
 
 ## Response Format
 All responses follow this structure:

@@ -6,7 +6,7 @@ import { DashboardOverview } from './DashboardOverview';
 import { UMKMManagement } from './UMKMManagement';
 import { UMKMAccountManagement } from './UMKMAccountManagement';
 import { TransactionManagement } from './TransactionManagement';
-import { mockUMKMAccounts, mockTransactions, mockDashboardStats, mockRecentActivities } from '../../mockData/adminData';
+import { mockUMKMAccounts, mockTransactions, mockRecentActivities } from '../../mockData/adminData';
 import type { UMKMAccount } from '../../types/admin';
 import { NotFoundPage } from '../../pages/NotFoundPage';
 import '../../styles/AdminDashboard.css';
@@ -59,7 +59,7 @@ export function AdminDashboard({ onLogout, useMockData = false }: AdminDashboard
             {/* Redirect dari root ke dashboard */}
             <Route path="/" element={<Navigate to="/admin/dashboard" replace />} />
             {/* Halaman dashboard overview dengan statistik dan aktivitas terbaru */}
-            <Route path="/dashboard" element={<DashboardOverview stats={mockDashboardStats} recentActivities={mockRecentActivities} />} />
+            <Route path="/dashboard" element={<DashboardOverview recentActivities={mockRecentActivities} />} />
             {/* Halaman manajemen UMKM dengan conditional rendering untuk mock data */}
             <Route path="/umkm" element={
               useMockData ? (
