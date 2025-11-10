@@ -119,6 +119,8 @@ export const mockTransactions: Transaction[] = [
 export const mockDashboardStats: DashboardStats = {
   totalUMKM: 45,
   pendingApprovals: 8,
+  activeUMKM: 35,
+  suspendedUMKM: 2,
   totalTransactions: 1250,
   totalRevenue: 87500000,
   todayTransactions: 23,
