@@ -1,7 +1,21 @@
 .admin-dashboard {
   display: flex;
   min-height: 100vh;
-  background-color: var(--color-gray-50);
+  background: linear-gradient(135deg, #F8F9FA 0%, #E8F5E9 100%);
+  position: relative;
+}
+
+.admin-dashboard::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 20% 50%, rgba(110, 203, 99, 0.08) 0%, transparent 50%),
+              radial-gradient(circle at 80% 80%, rgba(255, 215, 0, 0.05) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
 }
 
 .admin-main {
@@ -9,11 +23,23 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  position: relative;
+  z-index: 1;
 }
 
 .admin-content {
   flex: 1;
   overflow-y: auto;
+  animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @media (max-width: 1024px) {

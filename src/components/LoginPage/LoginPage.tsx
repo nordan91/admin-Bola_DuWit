@@ -44,12 +44,11 @@ export function LoginPage({ onLoginSuccess }: LoginPageProps) {
       <div className="login-container">
         <div className="login-header">
           <img 
-            src="/Logo_bola_duwit.jpg" 
+            src="/logo_boladuwit.png" 
             alt="Bola DuWit Logo" 
             className="login-logo"
           />
           <div className="login-title-wrapper">
-            <h1 className="login-title">Bola DuWit</h1>
             <p className="login-subtitle">Admin Panel</p>
           </div>
         </div>
@@ -101,9 +100,6 @@ export function LoginPage({ onLoginSuccess }: LoginPageProps) {
           </button>
         </form>
 
-        <div className="login-footer">
-          <div className="timestamp">2021-08-13 16:20:02</div>
-        </div>
 
       </div>
     </div>
