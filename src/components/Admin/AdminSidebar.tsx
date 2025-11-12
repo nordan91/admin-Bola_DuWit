@@ -1,6 +1,6 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { FiMenu, FiX } from 'react-icons/fi';
+import { FiMenu, FiX, FiHome, FiUsers, FiUser, FiDollarSign, FiFileText, FiSettings } from 'react-icons/fi';
 import '../../styles/AdminSidebar.css';
 
 // Komponen sidebar untuk navigasi halaman admin
@@ -15,12 +15,12 @@ export function AdminSidebar() {
 
   // Daftar menu navigasi sidebar
   const menuItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: '📊', path: '/admin/dashboard' },
-    { id: 'umkm', label: 'Kelola UMKM', icon: '🏪', path: '/admin/umkm' },
-    { id: 'umkm-accounts', label: 'Akun UMKM', icon: '👥', path: '/admin/umkm-accounts' },
-    // { id: 'transactions', label: 'Transaksi', icon: '💳', path: '/admin/transactions' },
-    // { id: 'reports', label: 'Laporan', icon: '📈', path: '/admin/reports' },
-    // { id: 'settings', label: 'Pengaturan', icon: '⚙️', path: '/admin/settings' }
+    { id: 'dashboard', label: 'Dashboard', icon: <FiHome size={20} />, path: '/admin/dashboard' },
+    { id: 'umkm', label: 'Kelola UMKM', icon: <FiFileText size={20} />, path: '/admin/umkm' },
+    { id: 'umkm-accounts', label: 'Akun UMKM', icon: <FiUsers size={20} />, path: '/admin/umkm-accounts' },
+    // { id: 'transactions', label: 'Transaksi', icon: <FiDollarSign size={20} />, path: '/admin/transactions' },
+    // { id: 'reports', label: 'Laporan', icon: <FiFileText size={20} />, path: '/admin/reports' },
+    // { id: 'settings', label: 'Pengaturan', icon: <FiSettings size={20} />, path: '/admin/settings' }
   ];
   
   // Mendapatkan path saat ini untuk menandai menu aktif
@@ -122,7 +122,7 @@ export function AdminSidebar() {
         {/* Header sidebar dengan logo dan judul */}
         <div className="admin-sidebar-header">
           <img 
-            src="/Logo_bola_duwit.jpg" 
+            src="/logo_boladuwit.png" 
             alt="Bola DuWit" 
             className="admin-sidebar-logo" 
             onClick={() => handleNavigate('/admin/dashboard')}
