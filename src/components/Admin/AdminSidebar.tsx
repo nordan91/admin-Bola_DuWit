@@ -1,6 +1,6 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { FiMenu, FiX, FiHome, FiUsers, FiUser, FiDollarSign, FiFileText, FiSettings } from 'react-icons/fi';
+import { FiMenu, FiX, FiHome, FiUsers, FiFileText } from 'react-icons/fi';
 import '../../styles/AdminSidebar.css';
 
 // Komponen sidebar untuk navigasi halaman admin
