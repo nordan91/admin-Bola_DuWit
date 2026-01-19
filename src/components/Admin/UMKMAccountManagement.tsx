@@ -472,7 +472,10 @@ export function UMKMAccountManagement({
                 <div className="umkm-account-mobile-header">
                   <span>{account.name}</span>
                   <div className="umkm-account-status-badges">
-                    <StatusBadge status={account.status} size="sm" />
+                    <StatusBadge 
+                      status_transaksi={account.status === 'pending' ? 'menunggu' : account.status === 'approved' ? 'diproses' : account.status === 'rejected' ? 'dibatalkan' : 'menunggu'} 
+                      size="sm" 
+                    />
                     <span className={`account-status-badge ${account.accountStatus}`}>
                       {account.accountStatus === 'active' ? 'Aktif' : 'Ditangguhkan'}
                     </span>

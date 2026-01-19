@@ -299,7 +299,7 @@ export function UMKMManagement({
                 <div className="umkm-info-header">
                   <h3 className="umkm-name">{account.name}</h3>
                   <StatusBadge 
-                    status={account.status === 'suspended' ? 'suspended' : account.status} 
+                    status_transaksi={account.status === 'suspended' ? 'menunggu' : account.status === 'pending' ? 'menunggu' : account.status === 'approved' ? 'diproses' : account.status === 'rejected' ? 'dibatalkan' : 'menunggu'} 
                     size="sm" 
                   />
                 </div>
@@ -412,7 +412,7 @@ export function UMKMManagement({
               <div className="umkm-modal-field">
                 <label>Status</label>
                 <StatusBadge 
-                  status={selectedAccount.status === 'suspended' ? 'suspended' : selectedAccount.status} 
+                  status_transaksi={selectedAccount.status === 'suspended' ? 'menunggu' : selectedAccount.status === 'pending' ? 'menunggu' : selectedAccount.status === 'approved' ? 'diproses' : selectedAccount.status === 'rejected' ? 'dibatalkan' : 'menunggu'} 
                 />
               </div>
             </div>

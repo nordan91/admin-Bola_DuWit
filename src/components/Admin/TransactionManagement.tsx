@@ -5,10 +5,6 @@ import { apiService } from '../../services/api';
 import '../../styles/TransactionManagement.css';
 import { FaTimes, FaEye } from 'react-icons/fa';
 
-// Interface untuk props yang diterima oleh komponen TransactionManagement
-interface TransactionManagementProps {
-  transactions: Transaction[];  // Daftar transaksi yang akan ditampilkan
-}
 
 /**
  * Komponen untuk mengelola dan menampilkan daftar transaksi

@@ -4,7 +4,7 @@ import { apiService } from '../../services/api';
 import { PaymentTransaction, UMKMPaymentInfo, UMPayment } from '../../types/admin';
 import '../../styles/TransactionManagement.css';
 import '../../styles/UMPaymentManagement.css';
-import { FaTimes, FaEye, FaUpload, FaCheck, FaMoneyBillWave } from 'react-icons/fa';
+import { FaTimes, FaEye, FaMoneyBillWave } from 'react-icons/fa';
 
 // Constants
 const MAX_FILE_SIZE_KB = 2048;
