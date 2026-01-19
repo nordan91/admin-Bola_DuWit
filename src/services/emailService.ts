@@ -16,7 +16,7 @@ const ensureConfig = () => {
   }
 };
 
-export async function sendOtpEmail({ toEmail, userName, otpCode }: SendOtpOptions) {
+export async function sendOtpEmail({ toEmail, userName: _userName, otpCode }: SendOtpOptions) {
   ensureConfig();
 
   const expiryTime = new Date(Date.now() + 15 * 60 * 1000).toLocaleTimeString('id-ID', {

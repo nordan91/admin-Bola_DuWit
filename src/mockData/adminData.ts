@@ -56,96 +56,165 @@ export const mockUMKMAccounts: UMKMAccount[] = [
 export const mockTransactions: Transaction[] = [
   {
     id: 'txn-001',
-    date: '2024-01-20T15:30:00Z',
-    umkmName: 'Warung Makmur',
-    umkmId: '1',
-    customerName: 'Budi Santoso',
-    customerId: 'cust-001',
-    amount: 75000,
-    status: 'completed',
-    paymentMethod: 'Transfer Bank',
-    items: [
+    tanggal_transaksi: '2024-01-20T15:30:00Z',
+    tanggal_diperbarui: '2024-01-20T15:30:00Z',
+    nama_umkm: 'Warung Makmur',
+    umkm_name: 'Warung Makmur',
+    umkm_owner: 'Pemilik Warung',
+    nama_pembeli: 'Budi Santoso',
+    customer_name: 'Budi Santoso',
+    customer_email: 'budi@example.com',
+    total_harga: 75000,
+    harga: 75000,
+    metode_pembayaran: 'Transfer Bank',
+    status_transaksi: 'selesai',
+    status_pesanan: 'completed',
+    alamat_pengiriman: 'Alamat Pengiriman',
+    funds_held: false,
+    can_release_funds: true,
+    product_name: 'Ayam Goreng',
+    products: [
       {
-        productName: 'Ayam Goreng',
-        quantity: 2,
-        price: 25000
+        nama_produk: 'Ayam Goreng',
+        nama_umkm: 'Warung Makmur',
+        umkm_name: 'Warung Makmur',
+        umkm_owner: 'Pemilik Warung',
+        jumlah: 2,
+        harga_satuan: 25000,
+        subtotal: 50000
       },
       {
-        productName: 'Nasi Uduk',
-        quantity: 2,
-        price: 12500
+        nama_produk: 'Nasi Uduk',
+        nama_umkm: 'Warung Makmur',
+        umkm_name: 'Warung Makmur',
+        umkm_owner: 'Pemilik Warung',
+        jumlah: 2,
+        harga_satuan: 12500,
+        subtotal: 25000
       }
     ]
   },
   {
     id: 'txn-002',
-    date: '2024-01-19T12:15:00Z',
-    umkmName: 'Toko Elektronik Jaya',
-    umkmId: '2',
-    customerName: 'Ani Wijaya',
-    customerId: 'cust-002',
-    amount: 1250000,
-    status: 'pending',
-    paymentMethod: 'E-Wallet',
-    items: [
+    tanggal_transaksi: '2024-01-19T12:15:00Z',
+    tanggal_diperbarui: '2024-01-19T12:15:00Z',
+    nama_umkm: 'Toko Elektronik Jaya',
+    umkm_name: 'Toko Elektronik Jaya',
+    umkm_owner: 'Pemilik Toko',
+    nama_pembeli: 'Ani Wijaya',
+    customer_name: 'Ani Wijaya',
+    customer_email: 'ani@example.com',
+    total_harga: 1250000,
+    harga: 1250000,
+    metode_pembayaran: 'E-Wallet',
+    status_transaksi: 'menunggu',
+    status_pesanan: 'pending',
+    alamat_pengiriman: 'Alamat Pengiriman',
+    funds_held: true,
+    can_release_funds: false,
+    product_name: 'Smartphone Samsung',
+    products: [
       {
-        productName: 'Smartphone Samsung',
-        quantity: 1,
-        price: 1250000
+        nama_produk: 'Smartphone Samsung',
+        nama_umkm: 'Toko Elektronik Jaya',
+        umkm_name: 'Toko Elektronik Jaya',
+        umkm_owner: 'Pemilik Toko',
+        jumlah: 1,
+        harga_satuan: 1250000,
+        subtotal: 1250000
       }
     ]
   },
   {
     id: 'txn-003',
-    date: '2024-01-21T14:20:00Z',
-    umkmName: 'Butik Fashion Cantik',
-    umkmId: '3',
-    customerName: 'Dewi Lestari',
-    customerId: 'cust-004',
-    amount: 350000,
-    status: 'processing',
-    paymentMethod: 'Kartu Kredit',
-    items: [
+    tanggal_transaksi: '2024-01-21T14:20:00Z',
+    tanggal_diperbarui: '2024-01-21T14:20:00Z',
+    nama_umkm: 'Butik Fashion Cantik',
+    umkm_name: 'Butik Fashion Cantik',
+    umkm_owner: 'Pemilik Butik',
+    nama_pembeli: 'Dewi Lestari',
+    customer_name: 'Dewi Lestari',
+    customer_email: 'dewi@example.com',
+    total_harga: 350000,
+    harga: 350000,
+    metode_pembayaran: 'Kartu Kredit',
+    status_transaksi: 'diproses',
+    status_pesanan: 'processing',
+    alamat_pengiriman: 'Alamat Pengiriman',
+    funds_held: true,
+    can_release_funds: false,
+    product_name: 'Dress Floral',
+    products: [
       {
-        productName: 'Dress Floral',
-        quantity: 1,
-        price: 350000
+        nama_produk: 'Dress Floral',
+        nama_umkm: 'Butik Fashion Cantik',
+        umkm_name: 'Butik Fashion Cantik',
+        umkm_owner: 'Pemilik Butik',
+        jumlah: 1,
+        harga_satuan: 350000,
+        subtotal: 350000
       }
     ]
   },
   {
     id: 'txn-004',
-    date: '2024-01-22T10:15:00Z',
-    umkmName: 'Warung Makmur',
-    umkmId: '1',
-    customerName: 'Rudi Hartono',
-    customerId: 'cust-005',
-    amount: 120000,
-    status: 'shipped',
-    paymentMethod: 'Transfer Bank',
-    items: [
+    tanggal_transaksi: '2024-01-22T10:15:00Z',
+    tanggal_diperbarui: '2024-01-22T10:15:00Z',
+    nama_umkm: 'Warung Makmur',
+    umkm_name: 'Warung Makmur',
+    umkm_owner: 'Pemilik Warung',
+    nama_pembeli: 'Rudi Hartono',
+    customer_name: 'Rudi Hartono',
+    customer_email: 'rudi@example.com',
+    total_harga: 120000,
+    harga: 120000,
+    metode_pembayaran: 'Transfer Bank',
+    status_transaksi: 'dikirim',
+    status_pesanan: 'shipped',
+    alamat_pengiriman: 'Alamat Pengiriman',
+    funds_held: true,
+    can_release_funds: false,
+    product_name: 'Paket Nasi Kotak',
+    products: [
       {
-        productName: 'Paket Nasi Kotak',
-        quantity: 5,
-        price: 24000
+        nama_produk: 'Paket Nasi Kotak',
+        nama_umkm: 'Warung Makmur',
+        umkm_name: 'Warung Makmur',
+        umkm_owner: 'Pemilik Warung',
+        jumlah: 5,
+        harga_satuan: 24000,
+        subtotal: 120000
       }
     ]
   },
   {
     id: 'txn-005',
-    date: '2024-01-18T09:45:00Z',
-    umkmName: 'Warung Makmur',
-    umkmId: '1',
-    customerName: 'Dedi Kurniawan',
-    customerId: 'cust-003',
-    amount: 50000,
-    status: 'completed',
-    paymentMethod: 'Cash',
-    items: [
+    tanggal_transaksi: '2024-01-18T09:45:00Z',
+    tanggal_diperbarui: '2024-01-18T09:45:00Z',
+    nama_umkm: 'Warung Makmur',
+    umkm_name: 'Warung Makmur',
+    umkm_owner: 'Pemilik Warung',
+    nama_pembeli: 'Dedi Kurniawan',
+    customer_name: 'Dedi Kurniawan',
+    customer_email: 'dedi@example.com',
+    total_harga: 50000,
+    harga: 50000,
+    metode_pembayaran: 'Cash',
+    status_transaksi: 'selesai',
+    status_pesanan: 'completed',
+    alamat_pengiriman: 'Alamat Pengiriman',
+    funds_held: false,
+    can_release_funds: true,
+    product_name: 'Nasi Uduk Special',
+    products: [
       {
-        productName: 'Nasi Uduk Special',
-        quantity: 2,
-        price: 25000
+        nama_produk: 'Nasi Uduk Special',
+        nama_umkm: 'Warung Makmur',
+        umkm_name: 'Warung Makmur',
+        umkm_owner: 'Pemilik Warung',
+        jumlah: 2,
+        harga_satuan: 25000,
+        subtotal: 50000
       }
     ]
   }
