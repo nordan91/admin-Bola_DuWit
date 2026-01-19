@@ -6,7 +6,8 @@ import { DashboardOverview } from './DashboardOverview';
 import { UMKMManagement } from './UMKMManagement';
 import { UMKMAccountManagement } from './UMKMAccountManagement';
 import { TransactionManagement } from './TransactionManagement';
-import { mockUMKMAccounts, mockTransactions, mockRecentActivities, mockDashboardStats } from '../../mockData/adminData';
+import { UMPaymentManagement } from './UMPaymentManagement';
+import { mockUMKMAccounts, mockRecentActivities, mockDashboardStats } from '../../mockData/adminData';
 import type { UMKMAccount } from '../../types/admin';
 import { NotFoundPage } from '../../pages/NotFoundPage';
 import '../../styles/AdminDashboard.css';
@@ -80,7 +81,9 @@ export function AdminDashboard({ onLogout, useMockData = false }: AdminDashboard
             {/* Halaman manajemen akun UMKM */}
             <Route path="/umkm-accounts" element={<UMKMAccountManagement />} />
             {/* Halaman manajemen transaksi */}
-            <Route path="/transactions" element={<TransactionManagement transactions={mockTransactions} />} />
+            <Route path="/transactions" element={<TransactionManagement />} />
+            {/* Halaman manajemen pembayaran UMKM */}
+            <Route path="/umkm-payments" element={<UMPaymentManagement />} />
             {/* Halaman 404 untuk route yang tidak ditemukan */}
             <Route path="*" element={<NotFoundPage />} />
           </Routes>

@@ -1,4 +1,4 @@
-import type { ApiResponse, ApiPendingUMKMUser, ApiUMKMProfileWithUser, ApiUser, ApiUMKMProfile } from '../types/admin';
+import type { ApiResponse, ApiPendingUMKMUser, ApiUMKMProfileWithUser, ApiUser, ApiUMKMProfile, Transaction } from '../types/admin';
 
 const API_BASE_URL = 'https://bola-duwit.my.id/api';
 
@@ -73,6 +73,37 @@ class ApiService {
     return await response.json();
   }
 
+  async validateToken(): Promise<boolean> {
+    try {
+      const token = this.getToken();
+      if (!token) {
+        return false;
+      }
+
+      const response = await fetch(`${this.baseUrl}/user/profile`, {
+        method: 'GET',
+        headers: this.getAuthHeader(),
+      });
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          // Don't automatically logout - just return false
+          // Let the calling code decide what to do
+          return false;
+        }
+        return false;
+      }
+
+      const data = await response.json();
+      return data && data.id; // Pastikan response memiliki user data
+    } catch (error) {
+      console.error('Token validation error:', error);
+      // Don't automatically logout - just return false
+      // Let the calling code decide what to do
+      return false;
+    }
+  }
+
   async login(credentials: LoginCredentials): Promise<LoginResponse> {
     try {
       const response = await fetch(`${this.baseUrl}/users/login`, {
@@ -107,12 +138,6 @@ class ApiService {
         } as ApiError;
       }
       
-      if (data.data.token) {
-        localStorage.setItem('authToken', data.data.token);
-        const userData = { ...data.data.user, role: 'admin' };
-        localStorage.setItem('userData', JSON.stringify(userData));
-      }
-
       return data;
     } catch (error) {
       if ((error as ApiError).message) {
@@ -278,6 +303,83 @@ class ApiService {
   getToken(): string | null {
     return localStorage.getItem('authToken');
   }
+
+  async getTransactions(): Promise<Transaction[]> {
+    const response = await fetch(`${this.baseUrl}/admin/transactions`, {
+      headers: this.getAuthHeader(),
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.message || 'Failed to fetch transactions');
+    }
+    return data.data || [];
+  }
+
+  // Get completed transactions for UMKM payment
+  async getCompletedTransactionsForPayment(): Promise<{
+    success: boolean;
+    message: string;
+    data: Array<{
+      id: string;
+      total_harga: number;
+      status_transaksi: string;
+      status_pembayaran: string;
+      tanggal_transaksi: string;
+      nama_pembeli: string;
+      umkm_payment_info: Array<{
+        umkm_id: string;
+        nama_toko: string;
+        owner: string;
+        nomor_rekening: string;
+        nama_bank: string;
+        total_pembayaran: number;
+        status_pembayaran: 'belum_dibayarkan' | 'sudah_dibayarkan';
+        tanggal_pembayaran: string | null;
+        bukti_transfer_path: string | null;
+        admin_pembayaran: string | null;
+      }>;
+    }>;
+  }> {
+    const response = await fetch(`${this.baseUrl}/admin/payments/completed-transactions`, {
+      headers: this.getAuthHeader(),
+    });
+    return this.handleResponse(response);
+  }
+
+  // Upload payment proof for specific UMKM
+  async uploadPaymentProof(transactionId: string, umkmId: string, file: File): Promise<{
+    success: boolean;
+    message: string;
+    data: {
+      transaction_id: string;
+      umkm_id: string;
+      bukti_transfer_path: string;
+      status_pembayaran: 'belum_dibayarkan' | 'sudah_dibayarkan';
+      tanggal_pembayaran: string;
+      jumlah_pembayaran: number;
+    };
+  }> {
+    const formData = new FormData();
+    formData.append('bukti_transfer', file);
+
+    // For file uploads, we only need Authorization header
+    // Don't set Content-Type as browser will set it with boundary
+    const headers: HeadersInit = {
+      'Authorization': `Bearer ${this.getToken()}`,
+    };
+
+    const response = await fetch(`${this.baseUrl}/admin/payments/${transactionId}/umkm/${umkmId}/upload-proof`, {
+      method: 'POST',
+      headers,
+      body: formData,
+    });
+
+    return this.handleResponse(response);
+  }
 }
+
+
+
+
 
 export const apiService = new ApiService(API_BASE_URL);

@@ -1,7 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { StatusBadge } from './StatusBadge';
 import type { Transaction } from '../../types/admin';
+import { apiService } from '../../services/api';
 import '../../styles/TransactionManagement.css';
+import { FaTimes, FaEye } from 'react-icons/fa';
 
 // Interface untuk props yang diterima oleh komponen TransactionManagement
 interface TransactionManagementProps {
@@ -12,18 +14,199 @@ interface TransactionManagementProps {
  * Komponen untuk mengelola dan menampilkan daftar transaksi
  * Menyediakan fitur filter, pencarian, dan tampilan statistik transaksi
  */
-export function TransactionManagement({ transactions }: TransactionManagementProps) {
+// Komponen Modal untuk menampilkan detail pesanan
+const OrderDetailModal = ({ transaction, onClose }: { transaction: Transaction | null, onClose: () => void }) => {
+  if (!transaction) return null;
+
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-content" onClick={e => e.stopPropagation()}>
+        <div className="modal-header">
+          <h3>Detail Pesanan</h3>
+          <button className="close-button" onClick={onClose}>
+            <FaTimes />
+          </button>
+        </div>
+        
+        <div className="order-details">
+          {/* Group products by store */}
+          {(() => {
+            const products = transaction.products || [];
+            const stores = new Map();
+            
+            // Group products by store
+            products.forEach((product: any) => {
+              const storeName = product.nama_umkm || product.umkm_name || 'Toko tidak diketahui';
+              if (!stores.has(storeName)) {
+                stores.set(storeName, []);
+              }
+              stores.get(storeName).push(product);
+            });
+            
+            const hasMultipleStores = stores.size > 1;
+            
+            return (
+              <>
+                <h4>Produk</h4>
+                {hasMultipleStores ? (
+                  // Multiple stores - display products grouped by store
+                  Array.from(stores.entries()).map(([storeName, storeProducts]) => (
+                    <div key={storeName} className="store-section">
+                      <h5 className="store-name-header">{storeName}</h5>
+                      {storeProducts.map((product: any, index: number) => (
+                        <div key={`${storeName}-${index}`} className="order-item">
+                          <img 
+                            src={product.product_image || '/placeholder-product.jpg'} 
+                            alt={product.nama_produk} 
+                            className="product-image"
+                          />
+                          <div className="product-info">
+                            <div className="product-name">{product.nama_produk}</div>
+                            <div className="product-price">
+                              {new Intl.NumberFormat('id-ID', {
+                                style: 'currency',
+                                currency: 'IDR',
+                                minimumFractionDigits: 0
+                              }).format(product.harga_satuan)}
+                            </div>
+                            <div className="product-quantity">Jumlah: {product.jumlah}</div>
+                          </div>
+                          <div className="product-subtotal">
+                            {new Intl.NumberFormat('id-ID', {
+                              style: 'currency',
+                              currency: 'IDR',
+                              minimumFractionDigits: 0
+                            }).format(product.harga_satuan * product.jumlah)}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ))
+                ) : (
+                  // Single store - display products normally
+                  products.map((product: any, index: any) => (
+                    <div key={index} className="order-item">
+                      <img 
+                        src={product.product_image || '/placeholder-product.jpg'} 
+                        alt={product.nama_produk} 
+                        className="product-image"
+                      />
+                      <div className="product-info">
+                        <div className="product-name">{product.nama_produk}</div>
+                        <div className="product-price">
+                          {new Intl.NumberFormat('id-ID', {
+                            style: 'currency',
+                            currency: 'IDR',
+                            minimumFractionDigits: 0
+                          }).format(product.harga_satuan)}
+                        </div>
+                        <div className="product-quantity">Jumlah: {product.jumlah}</div>
+                      </div>
+                      <div className="product-subtotal">
+                        {new Intl.NumberFormat('id-ID', {
+                          style: 'currency',
+                          currency: 'IDR',
+                          minimumFractionDigits: 0
+                        }).format(product.harga_satuan * product.jumlah)}
+                      </div>
+                    </div>
+                  ))
+                )}
+              </>
+            );
+          })()}
+          
+          {/* Only show store info if single store */}
+          {(() => {
+            const products = transaction.products || [];
+            const stores = new Set();
+            products.forEach((product: any) => {
+              const storeName = product.nama_umkm || product.umkm_name;
+              if (storeName) stores.add(storeName);
+            });
+            
+            return stores.size <= 1 ? (
+              <div className="store-info">
+                <h4>Toko</h4>
+                <p>{transaction.nama_umkm || transaction.umkm_name}</p>
+              </div>
+            ) : null;
+          })()}
+
+          <div className="customer-info">
+            <h4>Detail Pemesan</h4>
+            <p><strong>Nama:</strong> {transaction.customer_name || transaction.nama_pembeli}</p>
+            <p><strong>Alamat:</strong> {transaction.alamat_pengiriman || 'Alamat tidak tersedia'}</p>
+          </div>
+
+          <div className="order-summary">
+            <div className="summary-row">
+              <span>Subtotal</span>
+              <span>
+                {new Intl.NumberFormat('id-ID', {
+                  style: 'currency',
+                  currency: 'IDR',
+                  minimumFractionDigits: 0
+                }).format(transaction.total_harga)}
+              </span>
+            </div>
+            <div className="summary-row total">
+              <span>Total Tagihan</span>
+              <span>
+                {new Intl.NumberFormat('id-ID', {
+                  style: 'currency',
+                  currency: 'IDR',
+                  minimumFractionDigits: 0
+                }).format(transaction.total_harga)}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export function TransactionManagement() {
+  // State untuk data transaksi, loading, dan error
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
+  
   // State untuk filter dan pencarian
-  const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'completed' | 'cancelled'>('all');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'menunggu' | 'diproses' | 'dikirim' | 'selesai' | 'dibatalkan'>('all');
   const [searchQuery, setSearchQuery] = useState('');  // Kata kunci pencarian
+  
+  // Fetch transactions on component mount
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      try {
+        setIsLoading(true);
+        const data = await apiService.getTransactions();
+        setTransactions(data);
+        setError(null);
+      } catch (err) {
+        console.error('Error fetching transactions:', err);
+        setError('Gagal memuat data transaksi. Silakan coba lagi nanti.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchTransactions();
+  }, []);
 
   // Memfilter transaksi berdasarkan status dan kata kunci pencarian
   const filteredTransactions = transactions.filter(transaction => {
-    const matchesStatus = statusFilter === 'all' || transaction.status === statusFilter;
+    const matchesStatus = statusFilter === 'all' || 
+      transaction.status_transaksi.toLowerCase() === statusFilter.toLowerCase();
+    const searchLower = searchQuery.toLowerCase();
     const matchesSearch = 
-      transaction.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      transaction.umkmName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      transaction.customerName.toLowerCase().includes(searchQuery.toLowerCase());
+      transaction.id.toLowerCase().includes(searchLower) ||
+      (transaction.nama_umkm?.toLowerCase() || '').includes(searchLower) ||
+      (transaction.customer_name?.toLowerCase() || '').includes(searchLower) ||
+      (transaction.metode_pembayaran?.toLowerCase() || '').includes(searchLower);
     return matchesStatus && matchesSearch;
   });
 
@@ -56,9 +239,33 @@ export function TransactionManagement({ transactions }: TransactionManagementPro
   };
 
   // Menghitung statistik transaksi
-  const totalAmount = filteredTransactions.reduce((sum, t) => sum + t.amount, 0);  // Total nilai transaksi
-  const completedCount = filteredTransactions.filter(t => t.status === 'completed').length;  // Jumlah transaksi selesai
-  const pendingCount = filteredTransactions.filter(t => t.status === 'pending').length;  // Jumlah transaksi menunggu
+  const totalAmount = filteredTransactions.reduce((sum, t) => sum + (Number(t.total_harga) || 0), 0);  // Total nilai transaksi
+  const completedCount = filteredTransactions.filter(t => 
+    t.status_transaksi?.toLowerCase() === 'selesai' || 
+    t.status_transaksi?.toLowerCase() === 'completed'
+  ).length;  // Jumlah transaksi selesai
+  const pendingCount = filteredTransactions.filter(t => 
+    t.status_transaksi?.toLowerCase() === 'menunggu' || 
+    t.status_transaksi?.toLowerCase() === 'pending'
+  ).length;  // Jumlah transaksi menunggu
+
+  // Tampilkan loading indicator
+  if (isLoading) {
+    return (
+      <div className="transaction-management">
+        <div className="loading-indicator">Memuat data transaksi...</div>
+      </div>
+    );
+  }
+
+  // Tampilkan pesan error jika terjadi kesalahan
+  if (error) {
+    return (
+      <div className="transaction-management">
+        <div className="error-message">{error}</div>
+      </div>
+    );
+  }
 
   return (
     <div className="transaction-management">
@@ -101,20 +308,32 @@ export function TransactionManagement({ transactions }: TransactionManagementPro
             Semua
           </button>
           <button
-            className={`filter-btn ${statusFilter === 'pending' ? 'active' : ''}`}
-            onClick={() => setStatusFilter('pending')}
+            className={`filter-btn ${statusFilter === 'menunggu' ? 'active' : ''}`}
+            onClick={() => setStatusFilter('menunggu')}
           >
             Menunggu
           </button>
           <button
-            className={`filter-btn ${statusFilter === 'completed' ? 'active' : ''}`}
-            onClick={() => setStatusFilter('completed')}
+            className={`filter-btn ${statusFilter === 'diproses' ? 'active' : ''}`}
+            onClick={() => setStatusFilter('diproses')}
+          >
+            Proses
+          </button>
+          <button
+            className={`filter-btn ${statusFilter === 'dikirim' ? 'active' : ''}`}
+            onClick={() => setStatusFilter('dikirim')}
+          >
+            Dikirim
+          </button>
+          <button
+            className={`filter-btn ${statusFilter === 'selesai' ? 'active' : ''}`}
+            onClick={() => setStatusFilter('selesai')}
           >
             Selesai
           </button>
           <button
-            className={`filter-btn ${statusFilter === 'cancelled' ? 'active' : ''}`}
-            onClick={() => setStatusFilter('cancelled')}
+            className={`filter-btn ${statusFilter === 'dibatalkan' ? 'active' : ''}`}
+            onClick={() => setStatusFilter('dibatalkan')}
           >
             Dibatalkan
           </button>
@@ -134,28 +353,44 @@ export function TransactionManagement({ transactions }: TransactionManagementPro
               <div key={transaction.id} className="transaction-mobile-card">
                 <div className="transaction-mobile-header">
                   <span className="transaction-id">{transaction.id}</span>
-                  <StatusBadge status={transaction.status} size="sm" />
+                  <StatusBadge status_transaksi={transaction.status_transaksi} size="sm" />
                 </div>
                 <div className="transaction-mobile-body">
                   <div className="transaction-mobile-row">
-                    <span className="transaction-mobile-label">Tanggal:</span>
-                    <span>{formatDate(transaction.date)}</span>
-                  </div>
-                  <div className="transaction-mobile-row">
                     <span className="transaction-mobile-label">UMKM:</span>
-                    <span>{transaction.umkmName}</span>
+                    <span>{transaction.nama_umkm || transaction.umkm_name}</span>
                   </div>
                   <div className="transaction-mobile-row">
                     <span className="transaction-mobile-label">Pelanggan:</span>
-                    <span>{transaction.customerName}</span>
+                    <span>{transaction.customer_name || transaction.nama_pembeli}</span>
+                  </div>
+                  <div className="transaction-mobile-actions">
+                    <button 
+                      className="detail-button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedTransaction(transaction);
+                      }}
+                      title="Lihat detail pesanan"
+                    >
+                      <FaEye /> Lihat Detail
+                    </button>
                   </div>
                   <div className="transaction-mobile-row">
-                    <span className="transaction-mobile-label">Jumlah:</span>
-                    <span className="transaction-amount">{formatCurrency(transaction.amount)}</span>
+                    <span className="transaction-mobile-label">Total:</span>
+                    <span className="transaction-amount">{formatCurrency(transaction.total_harga)}</span>
                   </div>
                   <div className="transaction-mobile-row">
                     <span className="transaction-mobile-label">Metode:</span>
-                    <span>{transaction.paymentMethod}</span>
+                    <span>{transaction.metode_pembayaran}</span>
+                  </div>
+                  <div className="transaction-mobile-row">
+                    <span className="transaction-mobile-label">Status:</span>
+                    <span>{transaction.status_transaksi}</span>
+                  </div>
+                  <div className="transaction-mobile-row">
+                    <span className="transaction-mobile-label">Jumlah:</span>
+                    <span className="transaction-amount">{formatCurrency(transaction.total_harga)}</span>
                   </div>
                 </div>
               </div>
@@ -170,9 +405,10 @@ export function TransactionManagement({ transactions }: TransactionManagementPro
               <th>Tanggal</th>
               <th>UMKM</th>
               <th>Pelanggan</th>
-              <th>Jumlah</th>
+              <th>Total</th>
               <th>Metode</th>
               <th>Status</th>
+              <th>Aksi</th>
             </tr>
           </thead>
           <tbody>
@@ -186,13 +422,22 @@ export function TransactionManagement({ transactions }: TransactionManagementPro
               filteredTransactions.map((transaction) => (
                 <tr key={transaction.id} className="transaction-row">
                   <td className="transaction-id">{transaction.id}</td>
-                  <td>{formatDate(transaction.date)}</td>
-                  <td>{transaction.umkmName}</td>
-                  <td>{transaction.customerName}</td>
-                  <td className="transaction-amount">{formatCurrency(transaction.amount)}</td>
-                  <td>{transaction.paymentMethod}</td>
+                  <td>{formatDate(transaction.tanggal_transaksi)}</td>
+                  <td>{transaction.nama_umkm || transaction.umkm_name}</td>
+                  <td>{transaction.customer_name || transaction.nama_pembeli}</td>
+                  <td className="transaction-amount">{formatCurrency(transaction.total_harga)}</td>
+                  <td>{transaction.metode_pembayaran}</td>
                   <td>
-                    <StatusBadge status={transaction.status} size="sm" />
+                    <StatusBadge status_transaksi={transaction.status_transaksi} size="sm" />
+                  </td>
+                  <td>
+                    <button 
+                        className="pay-button"
+                        onClick={() => setSelectedTransaction(transaction)}
+                        title="Lihat detail pesanan"
+                      >
+                        Detail
+                      </button>
                   </td>
                 </tr>
               ))
@@ -200,6 +445,12 @@ export function TransactionManagement({ transactions }: TransactionManagementPro
           </tbody>
         </table>
       </div>
+      
+      {/* Modal Detail Pesanan */}
+      <OrderDetailModal 
+        transaction={selectedTransaction} 
+        onClose={() => setSelectedTransaction(null)} 
+      />
     </div>
   );
 }
