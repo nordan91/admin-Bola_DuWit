@@ -309,10 +309,6 @@ export function UMKMManagement({
                     <span className="umkm-detail-value">{account.owner}</span>
                   </div>
                   <div className="umkm-detail-item">
-                    <span className="umkm-detail-label">Kategori:</span>
-                    <span className="umkm-detail-value">{account.category}</span>
-                  </div>
-                  <div className="umkm-detail-item">
                     <span className="umkm-detail-label">Lokasi:</span>
                     <span className="umkm-detail-value">{account.location}</span>
                   </div>
@@ -390,10 +386,6 @@ export function UMKMManagement({
                 <p>{selectedAccount.phone}</p>
               </div>
               <div className="umkm-modal-field">
-                <label>Kategori</label>
-                <p>{selectedAccount.category}</p>
-              </div>
-              <div className="umkm-modal-field">
                 <label>Lokasi</label>
                 <p>{selectedAccount.location}</p>
               </div>
@@ -402,12 +394,24 @@ export function UMKMManagement({
                 <p>{selectedAccount.description}</p>
               </div>
               <div className="umkm-modal-field">
-                <label>Dokumen</label>
-                <div className="umkm-documents">
-                  {selectedAccount.documents.map((doc, index) => (
-                    <span key={index} className="umkm-document-badge">{doc}</span>
-                  ))}
-                </div>
+                <label>Nomor Rekening</label>
+                <p>{selectedAccount.bankAccountNumber || 'Belum tersedia'}</p>
+              </div>
+              <div className="umkm-modal-field">
+                <label>Nama Bank</label>
+                <p>{selectedAccount.bankName || 'Belum tersedia'}</p>
+              </div>
+              <div className="umkm-modal-field">
+                <label>Foto KTP</label>
+                {selectedAccount.ktpPhotoUrl ? (
+                  <img
+                    src={selectedAccount.ktpPhotoUrl}
+                    alt={`Foto KTP ${selectedAccount.owner}`}
+                    className="umkm-ktp-preview"
+                  />
+                ) : (
+                  <p className="umkm-ktp-placeholder">Belum ada foto KTP yang diunggah</p>
+                )}
               </div>
               <div className="umkm-modal-field">
                 <label>Status</label>

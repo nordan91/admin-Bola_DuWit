@@ -22,6 +22,18 @@
   gap: var(--spacing-lg);
 }
 
+.chart-wrapper {
+  position: relative;
+  min-height: 280px;
+}
+
+.chart-empty-state {
+  text-align: center;
+  color: var(--color-gray-600);
+  font-size: var(--font-size-sm);
+  padding: var(--spacing-md);
+}
+
 .dashboard-card {
   background: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(10px);
@@ -33,11 +45,6 @@
   transition: all 0.3s ease;
 }
 
-.dashboard-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 40px 0 rgba(110, 203, 99, 0.25);
-  border-color: rgba(110, 203, 99, 0.4);
-}
 
 .dashboard-card-header {
   padding: 1.5rem;

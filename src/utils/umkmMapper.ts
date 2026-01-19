@@ -130,6 +130,9 @@ export function mapApiToUMKMAccount(
     submittedAt: user.created_at || new Date().toISOString(),
     reviewedAt: user.updated_at || undefined,
     image: getPlaceholderImage(category),
+    ktpPhotoUrl: profile?.url_foto_ktp || undefined,
+    bankAccountNumber: profile?.nomor_rekening || undefined,
+    bankName: profile?.nama_bank || undefined,
   };
 }
 
