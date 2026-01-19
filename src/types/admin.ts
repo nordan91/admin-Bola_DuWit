@@ -15,6 +15,9 @@ export interface UMKMAccount {
   submittedAt: string;
   reviewedAt?: string;
   image: string;
+  ktpPhotoUrl?: string;
+  bankAccountNumber?: string;
+  bankName?: string;
 }
 
 // API Response types based on actual backend controller
@@ -41,6 +44,9 @@ export interface ApiUMKMProfile {
   lintang: number | null;
   bujur: number | null;
   kontak_wa: string | null;
+  nomor_rekening?: string | null;
+  nama_bank?: string | null;
+  url_foto_ktp?: string | null;
   terverifikasi: boolean;
   status_toko: 'buka' | 'tutup';
   created_at: string;
