@@ -3,6 +3,8 @@ import { EyeIcon } from '../icons/EyeIcon';
 import { EyeOffIcon } from '../icons/EyeOffIcon';
 import { apiService } from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
+import { TwoFactorAuth } from '../TwoFactorAuth/TwoFactorAuth';
+import type { User } from '../../types/auth';
 import './LoginPage.css';
 
 interface LoginPageProps {
@@ -15,6 +17,9 @@ export function LoginPage({ onLoginSuccess }: LoginPageProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isTwoFactorMode, setIsTwoFactorMode] = useState(false);
+  const [pendingUser, setPendingUser] = useState<User | null>(null);
+  const [pendingToken, setPendingToken] = useState<string | null>(null);
   const { login } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -24,20 +29,51 @@ export function LoginPage({ onLoginSuccess }: LoginPageProps) {
 
     try {
       const response = await apiService.login({ email, kata_sandi });
-      
-      // Store token and user data, update auth state
-      login(response.data.token, response.data.user);
-      
-      // Call success callback
-      if (onLoginSuccess) {
-        onLoginSuccess();
+
+      if (response.data.user.role !== 'admin') {
+        throw new Error('Akses ditolak. Hanya admin yang diizinkan.');
       }
+
+      setPendingUser(response.data.user);
+      setPendingToken(response.data.token);
+      setIsTwoFactorMode(true);
     } catch (err: any) {
       setError(err.message || 'Login gagal. Silakan coba lagi.');
     } finally {
       setIsLoading(false);
     }
   };
+
+  const handleOtpVerified = () => {
+    if (!pendingUser || !pendingToken) {
+      setError('Data login sementara tidak ditemukan. Silakan coba login kembali.');
+      setIsTwoFactorMode(false);
+      return;
+    }
+
+    login(pendingToken, pendingUser);
+
+    if (onLoginSuccess) {
+      onLoginSuccess();
+    }
+  };
+
+  const handleOtpCancel = () => {
+    setIsTwoFactorMode(false);
+    setPendingToken(null);
+    setPendingUser(null);
+  };
+
+  if (isTwoFactorMode && pendingUser) {
+    return (
+      <TwoFactorAuth
+        email={pendingUser.email}
+        userName={pendingUser.nama}
+        onVerified={handleOtpVerified}
+        onCancel={handleOtpCancel}
+      />
+    );
+  }
 
   return (
     <div className="login-page">

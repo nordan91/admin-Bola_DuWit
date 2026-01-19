@@ -22,6 +22,11 @@
   color: #92400E;
 }
 
+.status-badge-shipped {
+  background-color: #d7e9f0;
+  color: #3291B6;
+}
+
 .status-badge-approved,
 .status-badge-completed {
   background-color: #D1FAE5;

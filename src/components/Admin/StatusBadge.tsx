@@ -1,45 +1,68 @@
 import '../../styles/StatusBadge.css';
 
-// Interface untuk props yang diterima oleh komponen StatusBadge
+// Interface for StatusBadge props
 interface StatusBadgeProps {
-  // Status yang menentukan tampilan dan teks badge
-  status: 'pending' | 'approved' | 'rejected' | 'suspended' | 'completed' | 'cancelled';
-  // Ukuran opsional untuk badge (kecil atau sedang)
+  // Status in Indonesian as per database - supports both transaction and payment statuses
+  status_transaksi: 'menunggu' | 'diproses' | 'dikirim' | 'selesai' | 'dibatalkan' | 'belum_dibayarkan' | 'sudah_dibayarkan';
+  // Optional size prop
   size?: 'sm' | 'md';
 }
 
 /**
- * Komponen StatusBadge untuk menampilkan status dengan gaya yang konsisten
- * Digunakan untuk menampilkan status persetujuan, transaksi, dll.
+ * StatusBadge component to display status with consistent styling
+ * Used for displaying approval status, transactions, etc.
  */
-export function StatusBadge({ status, size = 'md' }: StatusBadgeProps) {
+export function StatusBadge({ status_transaksi, size = 'md' }: StatusBadgeProps) {
   /**
-   * Mengonversi status ke dalam teks yang sesuai dalam bahasa Indonesia
-   * @returns Teks status yang sudah diterjemahkan
+   * Maps status to appropriate display text in Indonesian
+   * @returns Translated status text
    */
   const getStatusText = () => {
-    switch (status) {
-      case 'pending':
-        return 'Menunggu';      // Status menunggu persetujuan/verifikasi
-      case 'approved':
-        return 'Disetujui';     // Status disetujui/diterima
-      case 'rejected':
-        return 'Ditolak';       // Status ditolak/tidak disetujui
-      case 'suspended':
-        return 'Ditangguhkan';  // Status ditangguhkan
-      case 'completed':
-        return 'Selesai';       // Status selesai/terpenuhi
-      case 'cancelled':
-        return 'Dibatalkan';    // Status dibatalkan
+    switch (status_transaksi) {
+      // Transaction statuses
+      case 'menunggu':
+        return 'Menunggu';      // Waiting for approval/verification
+      case 'diproses':
+        return 'Diproses';      // Transaction is being processed
+      case 'dikirim':
+        return 'Dikirim';       // Order has been shipped
+      case 'selesai':
+        return 'Selesai';       // Completed/fulfilled
+      case 'dibatalkan':
+        return 'Dibatalkan';    // Cancelled
+      
+      // Payment statuses
+      case 'belum_dibayarkan':
+        return 'Menunggu';      // Waiting for payment
+      case 'sudah_dibayarkan':
+        return 'Selesai';       // Payment completed
+        
       default:
-        return status;          // Fallback ke nilai asli jika tidak ada yang cocok
+        return status_transaksi;          // Fallback to original value if no match
     }
   };
 
-  // Render badge dengan kelas dinamis berdasarkan status dan ukuran
+  // Map Indonesian status to English for CSS class names
+  const getStatusClass = () => {
+    const statusMap: Record<string, string> = {
+      // Transaction statuses
+      'menunggu': 'pending',  
+      'diproses': 'processing',
+      'dikirim': 'shipped',
+      'selesai': 'completed',
+      'dibatalkan': 'cancelled',
+      
+      // Payment statuses
+      'belum_dibayarkan': 'pending',
+      'sudah_dibayarkan': 'completed'
+    };
+    return statusMap[status_transaksi] || status_transaksi;
+  };
+
+  // Render badge with dynamic classes based on status and size
   return (
     <span 
-      className={`status-badge status-badge-${status} status-badge-${size}`}
+      className={`status-badge status-badge-${getStatusClass()} status-badge-${size}`}
       aria-label={`Status: ${getStatusText()}`}
     >
       {getStatusText()}

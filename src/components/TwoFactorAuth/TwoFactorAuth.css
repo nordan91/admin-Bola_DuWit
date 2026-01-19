@@ -1,0 +1,146 @@
+.two-fa-wrapper {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  padding: 24px;
+}
+
+.two-fa-card {
+  width: 100%;
+  max-width: 420px;
+  background: #fff;
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: 0 25px 60px rgba(15, 23, 42, 0.2);
+}
+
+.two-fa-card h2 {
+  margin: 0 0 8px;
+  font-size: 24px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.two-fa-description {
+  margin: 0 0 24px;
+  color: #6b7280;
+  line-height: 1.6;
+}
+
+.two-fa-inputs {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.two-fa-inputs input {
+  height: 56px;
+  font-size: 24px;
+  font-weight: 600;
+  text-align: center;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.two-fa-inputs input:focus {
+  outline: none;
+  border-color: #7c3aed;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15);
+}
+
+.two-fa-error {
+  background: #fee2e2;
+  color: #b91c1c;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  margin-bottom: 12px;
+}
+
+.two-fa-success {
+  background: #dcfce7;
+  color: #15803d;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  margin-bottom: 12px;
+}
+
+.two-fa-actions {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.btn-primary,
+.btn-secondary {
+  flex: 1;
+  padding: 14px 16px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+  border: none;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  color: #fff;
+  box-shadow: 0 10px 20px rgba(99, 102, 241, 0.25);
+}
+
+.btn-secondary {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.btn-primary:active,
+.btn-secondary:active {
+  transform: translateY(1px);
+}
+
+.two-fa-footer {
+  text-align: center;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.link-button {
+  background: none;
+  border: none;
+  color: #7c3aed;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+}
+
+.link-button:disabled {
+  color: #9ca3af;
+  cursor: not-allowed;
+  text-decoration: none;
+}
+
+@media (max-width: 480px) {
+  .two-fa-card {
+    padding: 24px 20px;
+  }
+
+  .two-fa-inputs {
+    gap: 8px;
+  }
+
+  .two-fa-inputs input {
+    height: 48px;
+    font-size: 20px;
+  }
+
+  .two-fa-actions {
+    flex-direction: column;
+  }
+}

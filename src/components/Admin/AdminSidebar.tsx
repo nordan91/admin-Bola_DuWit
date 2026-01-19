@@ -1,6 +1,6 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { FiMenu, FiX, FiHome, FiUsers, FiFileText } from 'react-icons/fi';
+import { FiMenu, FiX, FiHome, FiUsers, FiFileText, FiShoppingCart, FiDollarSign } from 'react-icons/fi';
 import '../../styles/AdminSidebar.css';
 
 // Komponen sidebar untuk navigasi halaman admin
@@ -18,7 +18,8 @@ export function AdminSidebar() {
     { id: 'dashboard', label: 'Dashboard', icon: <FiHome size={20} />, path: '/admin/dashboard' },
     { id: 'umkm', label: 'Kelola UMKM', icon: <FiFileText size={20} />, path: '/admin/umkm' },
     { id: 'umkm-accounts', label: 'Akun UMKM', icon: <FiUsers size={20} />, path: '/admin/umkm-accounts' },
-    // { id: 'transactions', label: 'Transaksi', icon: <FiDollarSign size={20} />, path: '/admin/transactions' },
+    { id: 'transactions', label: 'Transaksi Pesanan', icon: <FiShoppingCart size={20} />, path: '/admin/transactions' },
+    { id: 'umkm-payments', label: 'Pembayaran UMKM', icon: <FiDollarSign size={20} />, path: '/admin/umkm-payments' },
     // { id: 'reports', label: 'Laporan', icon: <FiFileText size={20} />, path: '/admin/reports' },
     // { id: 'settings', label: 'Pengaturan', icon: <FiSettings size={20} />, path: '/admin/settings' }
   ];

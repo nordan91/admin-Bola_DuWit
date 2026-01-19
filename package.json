@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@emailjs/browser": "^4.4.1",
     "@tailwindcss/vite": "^4.1.17",
     "@types/styled-components": "^5.1.35",
     "@vis.gl/react-google-maps": "^0.10.0",

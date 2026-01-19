@@ -97,6 +97,42 @@ export const mockTransactions: Transaction[] = [
   },
   {
     id: 'txn-003',
+    date: '2024-01-21T14:20:00Z',
+    umkmName: 'Butik Fashion Cantik',
+    umkmId: '3',
+    customerName: 'Dewi Lestari',
+    customerId: 'cust-004',
+    amount: 350000,
+    status: 'processing',
+    paymentMethod: 'Kartu Kredit',
+    items: [
+      {
+        productName: 'Dress Floral',
+        quantity: 1,
+        price: 350000
+      }
+    ]
+  },
+  {
+    id: 'txn-004',
+    date: '2024-01-22T10:15:00Z',
+    umkmName: 'Warung Makmur',
+    umkmId: '1',
+    customerName: 'Rudi Hartono',
+    customerId: 'cust-005',
+    amount: 120000,
+    status: 'shipped',
+    paymentMethod: 'Transfer Bank',
+    items: [
+      {
+        productName: 'Paket Nasi Kotak',
+        quantity: 5,
+        price: 24000
+      }
+    ]
+  },
+  {
+    id: 'txn-005',
     date: '2024-01-18T09:45:00Z',
     umkmName: 'Warung Makmur',
     umkmId: '1',
